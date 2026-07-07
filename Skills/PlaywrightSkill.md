@@ -1,0 +1,120 @@
+# Playwright Skill System
+
+This skill provides guidance for writing, debugging, maintaining, and scaling Playwright test suites in TypeScript.
+
+## Core Rule (NON-NEGOTIABLE)
+
+- Tests must be deterministic, isolated, and parallel-safe
+- No business logic in tests
+- All async logic must be mocked or controlled
+
+## Modules
+
+See ./playwright/ folder for details.
+
+This skill defines strict rules for End-to-End testing.
+
+---
+
+# Test Location Rule
+
+All E2E tests MUST be written to:
+
+```
+[PROJECT_ROOT]/E2E
+```
+
+---
+
+# E2E Test Structure
+
+## Pattern
+
+- Arrange
+- Act
+- Assert
+
+---
+
+## Rules
+
+- keep tests linear
+- no branching logic
+- no duplicated setup
+- no conditional statements
+
+---
+
+# Execution Model
+
+When writing or modifying E2E tests:
+
+1. Use Playwright APIs only
+2. Write tests into `/E2E`
+3. Keep tests isolated and deterministic
+4. Do not mix unit/integration logic here
+
+---
+
+# What Belongs in E2E
+
+Use Playwright E2E tests for:
+
+- user flows
+- authentication flows
+- navigation
+- form submission
+- API + UI integration
+- cross-page behavior
+
+---
+
+# What is NOT allowed
+
+- unit tests
+- component tests
+- service logic tests
+- business logic inside tests
+- duplicate selectors
+
+---
+
+# Skill Modules
+
+Routing logic is split into focused modules:
+
+- Playwright, enforcement, rules, constraints, governance, testing policy → `./e2e/playwright-enforcement.md`
+- Test architecture, structure, organization, suite design, scaling tests → `./e2e/test-structure.md`
+- Debugging, failure analysis, logs, trace inspection, root cause → `./e2e/debugging.md`
+- Fixtures, test setup, teardown, dependency injection, test context → `./e2e/fixtures.md`
+- Routing, navigation rules, URL handling, flow control, redirection logic → `./e2e/routing.md`
+
+- accessibility, a11y, ARIA, screen readers, keyboard navigation → `playwright/accessibility.md`
+- advanced features, experimental APIs, tracing, extensions, capabilities → `playwright/advanced-features.md`
+- assertions, waits, timing, synchronization, expectations, conditions → `playwright/assertions-waits.md`
+- authentication, login, sessions, cookies, tokens, identity flow → `playwright/authentication.md`
+- browser APIs, window, DOM APIs, execution context, JS bridge → `playwright/browser-apis.md`
+- CI/CD, pipelines, automation, GitHub Actions, deployment testing → `playwright/ci-cd.md`
+- debugging, traces, screenshots, logs, playwright inspector → `playwright/debugging.md`
+- error handling, negative testing, failure cases, exceptions → `playwright/error-testing.md`
+- fixtures, hooks, beforeEach, afterEach, lifecycle, setup → `playwright/fixtures-hooks.md`
+- flaky tests, stability, retries, determinism, timing issues → `playwright/flaky-tests.md`
+- locators, selectors, DOM targeting, querying elements → `playwright/locators.md`
+- mobile testing, responsive, device emulation, viewport → `playwright/mobile-testing.md`
+- multi-user, concurrency, sessions, parallel users, isolation → `playwright/multi-user.md`
+- network mocking, intercept, API mocking, request stubbing → `playwright/network-mocking.md`
+- page object model, abstraction, POM, UI encapsulation → `playwright/page-object-model.md`
+- performance, load, speed, profiling, bottlenecks → `playwright/performance.md`
+- security testing, XSS, auth bypass, injection, vulnerability testing → `playwright/security-testing.md`
+- test writing, best practices, structure, readable tests, maintainability → `playwright/test-writing.md`
+- visual testing, screenshots, regression, UI diffing, snapshots → `playwright/visual-testing.md`
+
+---
+
+# Decision Rule
+
+When creating tests:
+
+- If it runs in a browser → E2E (Playwright)
+- If it verifies UI flow → E2E (Playwright)
+- If it touches multiple systems → E2E (Playwright)
