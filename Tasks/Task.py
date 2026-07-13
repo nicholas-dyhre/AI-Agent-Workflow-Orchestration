@@ -53,7 +53,6 @@ class AgentLog(BaseModel):
     output: str
     timestamp: str
 
-
 class Task(BaseModel):
     id: str
     title: str
@@ -66,3 +65,5 @@ class Task(BaseModel):
     review_rounds: int = 0
     branch_name: Optional[str] = None
     pr_url: Optional[str] = None
+
+    

@@ -7,17 +7,50 @@ from Tasks.Task import Task, AgentLog, PlanStep
 from Tools.tool_utils.ToolSelector import ToolSelector
 
 class BaseAgent:
-    def __init__(self, name: AgentName, llm, tool_selector: ToolSelector, skill_selector: SkillSelector):
-        self.name = name.value
-        self.agentName = name
+
+    DEFAULT_ALLOWED_TAGS = [
+        "tasks",
+        "task_management"
+    ]
+
+    DEFAULT_ALLOWED_CAPABILITIES = [
+        "read_tasks",
+        "update_tasks"
+    ]
+
+    def __init__(
+        self,
+        # name: AgentName,
+        llm,
+        tool_selector: ToolSelector,
+        skill_selector: SkillSelector
+    ):
+        self.name: str = ""
+        self.agentName: AgentName = AgentName.UNKNOWN
         self.llm = llm
+
         self.tool_selector = tool_selector
         self.skill_selector = skill_selector
+
         self.template = self.loadPrompt()
-        self.skill_count_limit = 3 # Number of skills an agent can load while running
+
+        self.skill_count_limit = 3
+
+        # Tool permissions
+        self.allowed_tags = (
+            self.DEFAULT_ALLOWED_TAGS.copy()
+        )
+
+        self.allowed_capabilities = (
+            self.DEFAULT_ALLOWED_CAPABILITIES.copy()
+        )
+        self.denied_capabilities: list[str] = []
+
+        self.tools = {}
+        self.skills = []
 
     def prepare(self, task: Task):
-        self.tools = self.tool_selector.select(self.agentName)
+        self.tools = self.tool_selector.select(self)
         self.skills = self.skill_selector.select(task)
         self.template = self.loadPrompt()
 
@@ -35,14 +68,6 @@ class BaseAgent:
                 self._template = f.read()
         return self._template
         
-    def build_prompt(self, task: Task):
-        return self.combine_prompt(
-            self.template,
-            task,
-            self.tools,
-            self.skills
-        )
-    
     def build_prompt_from_planstep(self, planStep: PlanStep):
         return self.combine_prompt_from_planstep(
             self.template,
@@ -51,12 +76,7 @@ class BaseAgent:
             self.skills
         )
     
-    def combine_prompt(self, template, task: Task, tools, skills):
-        return template \
-            .replace("{{TASK}}", self.format_task(task)) \
-            .replace("{{TOOLS}}", self.format_tools(tools)) \
-            .replace("{{SKILLS}}", self.format_skills(skills)) \
-            .replace("{{Load_skill}}", self.loadSkillSystemPrompt())
+    
     
     def combine_prompt_from_planstep(self, template, planStep: PlanStep, tools, skills):
         return template \
@@ -159,5 +179,5 @@ class BaseAgent:
             for o in obs
         )
     
-    def run(self, task: Task) -> Task:
+    def run(self, task: Task|str) -> Task:
         raise NotImplementedError("Subclasses must implement this method")

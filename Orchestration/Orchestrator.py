@@ -1,4 +1,8 @@
+from typing import Dict
+
 from Agent.AgentNames import AgentName
+from Agent.BaseAgent import BaseAgent
+from Agent.ProjectPlannerAgent import ProjectPlannerAgent
 from Tasks.TaskState import State
 
 STATE_TO_AGENT = {
@@ -21,11 +25,14 @@ ALLOWED_TRANSITIONS = {
 }
 
 class Orchestrator:
-    def __init__(self, agents, tools, task_repo, max_cycles=50):
+    def __init__(self, agents:Dict[AgentName, BaseAgent], task_repo, max_cycles=50):
         self.agents = agents
-        self.tools = tools
         self.task_repo = task_repo
         self.max_cycles = max_cycles
+
+    def runProjectPlanner(self, prompt: str):
+        projectPlanner = self.agents[AgentName.PROJECT_PLANNER]
+        projectPlanner.run(prompt)
 
     def orchestrate(self, task):
         cycles = 0

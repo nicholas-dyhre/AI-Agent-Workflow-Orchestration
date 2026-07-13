@@ -1,6 +1,6 @@
 import subprocess
 from typing import List
-from Tools import Tool
+from Tools.Tool import Tool
 from pydantic import BaseModel
 
 class CreateBranchInput(BaseModel):
@@ -12,6 +12,22 @@ class CreateBranchTool(Tool):
     description: str = "Creates a new git branch"
     tags: List[str] = ["git", "branch"]
     path: str = "tools/git/create_branch.py"
+
+    name = "create_branch"
+
+    description = """Creates a new git branch"""
+
+    tags = [
+        "git",
+        "github",
+        "repository",
+        "git branch"
+    ]
+
+    capabilities = [
+        "create_branch",
+        "external_repository_action"
+    ]
 
     input_model = CreateBranchInput
 

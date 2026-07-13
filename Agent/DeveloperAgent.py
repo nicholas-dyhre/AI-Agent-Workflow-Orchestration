@@ -1,10 +1,30 @@
 import re
 import subprocess
+from Agent.AgentNames import AgentName
 from Agent.BaseAgent import BaseAgent
 from Agent.AgentResponse import AgentResponse
 from Tasks.Task import Task, PlanStepState, PlanStep, CodeChange
     
 class DeveloperAgent(BaseAgent):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = AgentName.DEVELOPER.value
+        self.agentName = AgentName.DEVELOPER
+        self.allowed_tags.extend([
+            "filesystem",
+            "code",
+            "git",
+            "testing"
+        ])
+
+
+        self.allowed_capabilities.extend([
+            "modify_code",
+            "run_tests",
+            "create_branch",
+            "create_pull_request"
+        ])
 
     def run(self, task: Task) -> Task:
         self.prepare(task)
