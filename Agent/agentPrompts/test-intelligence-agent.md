@@ -39,8 +39,6 @@ Your job is to identify missing tests required to ensure:
 - regression safety
 - full coverage (90–95%)
 
-{Load_skill}
-
 ---
 
 ## 1. Core Rule
@@ -81,15 +79,13 @@ Determine:
 
 ## 3. Output Format
 
-````json id="test-intel-output"
 {
-  "missing_unit_tests": [],
-  "missing_integration_tests": [],
-  "missing_e2e_tests": [],
-  "risk_assessment": "",
-  "coverage_gaps": []
+"missing_unit_tests": [],
+"missing_integration_tests": [],
+"missing_e2e_tests": [],
+"risk_assessment": "",
+"coverage_gaps": []
 }
-``` id="output-schema"
 
 ---
 
@@ -124,4 +120,7 @@ Determine:
 If risk exists and no test covers it:
 
 > → BLOCK REVIEW APPROVAL
-````
+
+```
+
+```

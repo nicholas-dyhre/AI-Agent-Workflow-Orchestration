@@ -1,0 +1,54 @@
+# --- Project Specific Caches ---
+.venv/
+.ruff_cache/
+.llm_cache/
+
+# --- Python Build & Runtime Artifcts ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.tomlcov
+.coverage
+.coverage.*
+.nosexy.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# --- Environment and Secret files ---
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Operating System Artifacts ---
+.DS_Store
+Thumbs.db

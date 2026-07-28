@@ -10,7 +10,7 @@ This skill provides guidance for writing, debugging, maintaining, and scaling Pl
 
 ## Modules
 
-See ./playwright/ folder for details.
+See folder for details.
 
 This skill defines strict rules for End-to-End testing.
 
@@ -83,38 +83,29 @@ Use Playwright E2E tests for:
 
 Routing logic is split into focused modules:
 
-- Playwright, enforcement, rules, constraints, governance, testing policy → `./e2e/playwright-enforcement.md`
-- Test architecture, structure, organization, suite design, scaling tests → `./e2e/test-structure.md`
-- Debugging, failure analysis, logs, trace inspection, root cause → `./e2e/debugging.md`
-- Fixtures, test setup, teardown, dependency injection, test context → `./e2e/fixtures.md`
-- Routing, navigation rules, URL handling, flow control, redirection logic → `./e2e/routing.md`
+- Playwright, enforcement, rules, constraints, governance, testing policy → `playwright-enforcement`
+- Debugging, failure analysis, logs, trace inspection, root cause → `debugging`
+- Fixtures, test setup, teardown, dependency injection, test context → `fixtures`
+- Routing, navigation rules, URL handling, flow control, redirection logic → `routing`
 
-- accessibility, a11y, ARIA, screen readers, keyboard navigation → `playwright/accessibility.md`
-- advanced features, experimental APIs, tracing, extensions, capabilities → `playwright/advanced-features.md`
-- assertions, waits, timing, synchronization, expectations, conditions → `playwright/assertions-waits.md`
-- authentication, login, sessions, cookies, tokens, identity flow → `playwright/authentication.md`
-- browser APIs, window, DOM APIs, execution context, JS bridge → `playwright/browser-apis.md`
-- CI/CD, pipelines, automation, GitHub Actions, deployment testing → `playwright/ci-cd.md`
-- debugging, traces, screenshots, logs, playwright inspector → `playwright/debugging.md`
-- error handling, negative testing, failure cases, exceptions → `playwright/error-testing.md`
-- fixtures, hooks, beforeEach, afterEach, lifecycle, setup → `playwright/fixtures-hooks.md`
-- flaky tests, stability, retries, determinism, timing issues → `playwright/flaky-tests.md`
-- locators, selectors, DOM targeting, querying elements → `playwright/locators.md`
-- mobile testing, responsive, device emulation, viewport → `playwright/mobile-testing.md`
-- multi-user, concurrency, sessions, parallel users, isolation → `playwright/multi-user.md`
-- network mocking, intercept, API mocking, request stubbing → `playwright/network-mocking.md`
-- page object model, abstraction, POM, UI encapsulation → `playwright/page-object-model.md`
-- performance, load, speed, profiling, bottlenecks → `playwright/performance.md`
-- security testing, XSS, auth bypass, injection, vulnerability testing → `playwright/security-testing.md`
-- test writing, best practices, structure, readable tests, maintainability → `playwright/test-writing.md`
-- visual testing, screenshots, regression, UI diffing, snapshots → `playwright/visual-testing.md`
+- accessibility, a11y, ARIA, screen readers, keyboard navigation → `accessibility`
+- advanced features, experimental APIs, tracing, extensions, capabilities → `advanced-features`
+- assertions, waits, timing, synchronization, expectations, conditions → `assertions-waits`
+- authentication, login, sessions, cookies, tokens, identity flow → `authentication`
+- browser APIs, window, DOM APIs, execution context, JS bridge → `browser-apis`
+- CI/CD, pipelines, automation, GitHub Actions, deployment testing → `ci-cd`
+- debugging, traces, screenshots, logs, playwright inspector → `debugging`
+- error handling, negative testing, failure cases, exceptions → `error-testing`
+- fixtures, hooks, beforeEach, afterEach, lifecycle, setup → `fixtures-hooks`
+- flaky tests, stability, retries, determinism, timing issues → `flaky-tests`
+- locators, selectors, DOM targeting, querying elements → `locators`
+- mobile testing, responsive, device emulation, viewport → `mobile-testing`
+- multi-user, concurrency, sessions, parallel users, isolation → `multi-user`
+- network mocking, intercept, API mocking, request stubbing → `network-mocking`
+- page object model, abstraction, POM, UI encapsulation → `page-object-model`
+- performance, load, speed, profiling, bottlenecks → `performance`
+- security testing, XSS, auth bypass, injection, vulnerability testing → `security-testing`
+- test writing, best practices, structure, readable tests, maintainability → `test-writing`
+- visual testing, screenshots, regression, UI diffing, snapshots → `visual-testing`
 
 ---
-
-# Decision Rule
-
-When creating tests:
-
-- If it runs in a browser → E2E (Playwright)
-- If it verifies UI flow → E2E (Playwright)
-- If it touches multiple systems → E2E (Playwright)

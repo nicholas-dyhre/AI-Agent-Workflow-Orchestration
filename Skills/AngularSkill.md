@@ -51,15 +51,15 @@ Forbidden:
 
 ## Skill Modules (with usage hints)
 
-- async, rxjs, observables → ./angular/async-rxjs-performance.md
-- change detection, performance → ./angular/change-detection.md
-- bundle, build size → ./angular/bundle-optimization.md
-- rendering, dom → ./angular/rendering-performance.md
-- ssr, server-side → ./angular/ssr-performance.md
-- templates, html → ./angular/template-optimization.md
-- state, signals → ./angular/state-management.md
-- memory, leaks → ./angular/memory-management.md
-- architecture, structure → ./angular/angular-architecture.md
+- async, rxjs, observables → `async-rxjs-performance`
+- change detection, performance → `change-detection`
+- bundle, build size → `bundle-optimization`
+- rendering, dom → `rendering-performance`
+- ssr, server-side → `ssr-performance`
+- templates, html → `template-optimization`
+- state, signals → `state-management`
+- memory, leaks → `memory-management`
+- architecture, structure → `angular-architecture`
 
 ---
 

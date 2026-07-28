@@ -12,13 +12,13 @@ Guidelines:
 Process:
 
 - First: decide if you need more knowledge
-- If yes: call "load_skill"
+- If yes: call "LoadSkillTool"
 - Then continue reasoning
 
 Example:
 
 Action: tool
-tool_name: load_skill
+tool_name: LoadSkillTool
 input:
 {
 "skill_path": "frontend/angular/async-rxjs"

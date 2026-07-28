@@ -10,9 +10,9 @@
 
 ## Use:
 
-- switchMap → dependent flows
-- forkJoin → parallel calls
-- combineLatest → reactive composition
+- switchMap → `dependent-flows`
+- forkJoin → `parallel-calls`
+- combineLatest → `reactive-composition`
 
 ---
 

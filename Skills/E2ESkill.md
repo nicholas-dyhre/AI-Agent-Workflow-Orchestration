@@ -73,11 +73,10 @@ Use Playwright E2E tests for:
 
 Routing logic is split into focused modules:
 
-- Playwright enforcement → `./e2e/playwright-enforcement.md`
-- Test structure → `./e2e/test-structure.md`
-- Debugging → `./e2e/debugging.md`
-- Fixtures → `./e2e/fixtures.md`
-- Routing rules → `./e2e/routing.md`
+- Playwright enforcement → `playwright-enforcement`
+- Debugging → `debugging`
+- Fixtures → `fixtures`
+- Routing rules → `routing`
 
 ---
 
@@ -85,9 +84,9 @@ Routing logic is split into focused modules:
 
 When creating tests:
 
-- If it runs in a browser → E2E (Playwright)
-- If it verifies UI flow → E2E (Playwright)
-- If it touches multiple systems → E2E (Playwright)
+- If it runs in a browser → `PlaywrightSkill`
+- If it verifies UI flow → `PlaywrightSkill`
+- If it touches multiple systems → `PlaywrightSkill`
 
 ---
 

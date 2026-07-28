@@ -9,12 +9,7 @@ class ToolRegistry:
     def register(self, tool: Tool):
         if tool.name in self._tools:
             raise ValueError(f"Tool already registered: {tool.name}")
-
         self._tools[tool.name] = tool
-
-    def register_many(self, tools: List[Tool]):
-        for tool in tools:
-            self.register(tool)
 
     def get(self, name: str) -> Tool:
         tool = self._tools.get(name)
@@ -31,10 +26,7 @@ class ToolRegistry:
         return self._tools
 
     def find_by_tags(self, tags: List[str]) -> List[Tool]:
-        return [
-            tool for tool in self._tools.values()
-            if any(tag in tool.tags for tag in tags)
-        ]
+        return [tool for tool in self._tools.values() if any(tag in tool.tags for tag in tags)]
 
     def require(self, names: List[str]):
         missing = [name for name in names if name not in self._tools]

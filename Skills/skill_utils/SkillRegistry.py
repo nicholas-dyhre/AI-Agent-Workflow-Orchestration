@@ -1,17 +1,13 @@
+from pathlib import Path
 from typing import List, Optional
 from typing import Generator
 from Skills.skill_utils.SkillNode import SkillNode
 
 
 class SkillRegistry:
-
-    def __init__(
-        self,
-        rootNode: SkillNode
-    ):
+    def __init__(self, rootNode: SkillNode):
         self._root = rootNode
         self._index = self._build_index()
-
 
     def _build_index(self) -> dict[str, SkillNode]:
         """
@@ -24,15 +20,13 @@ class SkillRegistry:
         index = {}
 
         for node in self.walk():
-
             if node.name != "root":
                 index[node.name] = node
 
         return index
 
-
     def get(self, name: str) -> Optional[SkillNode]:
-        """ Get a skill by exact name. """
+        """Get a skill by exact name."""
         return self._index.get(name)
 
     def require(self, name: str) -> SkillNode:
@@ -44,9 +38,7 @@ class SkillRegistry:
         skill = self.get(name)
 
         if skill is None:
-            raise ValueError(
-                f"Skill not found: {name}"
-            )
+            raise ValueError(f"Skill not found: {name}")
 
         return skill
 
@@ -54,72 +46,43 @@ class SkillRegistry:
         return name in self._index
 
     def list(self) -> List[SkillNode]:
-        return list(
-            self._index.values()
-        )
+        return list(self._index.values())
 
-    def search(
-        self,
-        keyword: str
-    ) -> List[SkillNode]:
-        """ Find skills matching a keyword. """
+    def search(self, keyword: str) -> List[SkillNode]:
+        """Find skills matching a keyword."""
 
         keyword = keyword.lower()
 
         return [
             skill
             for skill in self._index.values()
-            if any(
-                keyword in k.lower()
-                for k in skill.keywords
-            )
+            if any(keyword in k.lower() for k in skill.keywords)
         ]
 
+    def find_by_keywords(self, keywords: List[str]) -> List[SkillNode]:
+        """Find skills matching multiple keywords."""
 
-    def find_by_keywords(
-        self,
-        keywords: List[str]
-    ) -> List[SkillNode]:
-        """ Find skills matching multiple keywords. """
-
-        keywords = [
-            k.lower()
-            for k in keywords
-        ]
+        keywords = [k.lower() for k in keywords]
 
         results = []
 
         for skill in self._index.values():
+            skill_keywords = [k.lower() for k in skill.keywords]
 
-            skill_keywords = [
-                k.lower()
-                for k in skill.keywords
-            ]
-
-            if any(
-                k in skill_keywords
-                for k in keywords
-            ):
+            if any(k in skill_keywords for k in keywords):
                 results.append(skill)
 
         return results
 
-
-    def children_of(
-        self,
-        skill_name: str
-    ) -> List[SkillNode]:
-        """ Get immediate children of a skill."""
+    def children_of(self, skill_name: str) -> List[SkillNode]:
+        """Get immediate children of a skill."""
 
         skill = self.require(skill_name)
 
         return skill.children
 
-    def branch(
-        self,
-        skill_name: str
-    ) -> List[SkillNode]:
-        """ Get a complete skill subtree. """
+    def branch(self, skill_name: str) -> List[SkillNode]:
+        """Get a complete skill subtree."""
         skill = self.require(skill_name)
         return list(skill.get_descendants())
 
@@ -129,30 +92,16 @@ class SkillRegistry:
     def find_matching_nodes(self, keywords: List[str]) -> List[SkillNode]:
         matches = []
 
-        self._search(
-            self._root,
-            keywords,
-            matches
-        )
+        self._search(self._root, keywords, matches)
 
         return matches
 
-
     def _search(self, node, keywords, matches):
-        if any(
-            keyword.lower() in 
-            [k.lower() for k in node.keywords]
-            for keyword in keywords
-        ):
+        if any(keyword.lower() in [k.lower() for k in node.keywords] for keyword in keywords):
             matches.append(node)
 
-
         for child in node.children:
-            self._search(
-                child,
-                keywords,
-                matches
-            )
+            self._search(child, keywords, matches)
 
     def walk(self) -> Generator[SkillNode, None, None]:
         """
@@ -161,11 +110,7 @@ class SkillRegistry:
 
         yield from self._walk_node(self._root)
 
-
-    def _walk_node(
-        self,
-        node: SkillNode
-    ) -> Generator[SkillNode, None, None]:
+    def _walk_node(self, node: SkillNode) -> Generator[SkillNode, None, None]:
 
         yield node
 
