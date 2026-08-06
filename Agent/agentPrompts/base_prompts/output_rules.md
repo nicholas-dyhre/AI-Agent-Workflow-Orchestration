@@ -19,13 +19,14 @@ You must return ONE of the following:
 "tool_name": "<tool_name>",
 "input": { ... }
 "reasoning": "Your step-by-step thinking goes here..."
+"goal": "Your end goal, must use tools, and output requirements goes here..."
 }
 
 ## Available Tools:
 
 <AVAILABLE_TOOLS>
 {{TOOLS}}
-<AVAILABLE_TOOLS>
+</AVAILABLE_TOOLS>
 
 ## Final (ONLY when task persisted)
 
@@ -44,6 +45,7 @@ You must return ONE of the following:
 "action": "final",
 "final_answer": "...",
 "reasoning": "Your step-by-step thinking goes here..."
+"goal": "Your end goal, must use tools, and output requirements goes here..."
 }
 
 ---

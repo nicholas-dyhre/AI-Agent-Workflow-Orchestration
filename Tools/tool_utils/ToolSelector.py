@@ -34,5 +34,4 @@ class ToolSelector:
 
         # Tag match
         tag_match = any(tag in agent.allowed_tags for tag in tool.tags)
-
-        return capability_match and tag_match
+        return capability_match or tag_match

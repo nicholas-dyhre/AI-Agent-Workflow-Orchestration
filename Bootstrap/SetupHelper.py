@@ -2,15 +2,18 @@ from pathlib import Path
 from Skills.skill_utils.SkillRegistry import SkillRegistry
 from Skills.skill_utils.SkillSelector import SkillSelector
 from Skills.skill_utils.SkillTreeBuilder import SkillTreeBuilder
+from Tools.Git.GitUtils import GitUtils
+from Tools.code.CodeUtils import CodeUtils
 from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolRegistry import ToolRegistry
 from Tools.tool_utils.ToolSelector import ToolSelector
 from Tools.tool_utils.ToolDiscovery import ToolDiscovery
+from Tools.Task.TaskFileUtils import TaskFileUtils
 
 
 class SetupHelper:
     @staticmethod
-    def CreateToolRegistry(skillRegistry: SkillRegistry, task_base_path: str) -> ToolSelector:
+    def CreateToolRegistry(skillRegistry: SkillRegistry, repo_path: str, task_base_path: str) -> ToolSelector:
         if not skillRegistry:
             raise Exception("Tool registry requires skill registry to be provided.")
         registry = ToolRegistry()
@@ -22,7 +25,8 @@ class SetupHelper:
 
         context = {
             ToolContextKey.skill_registry: skillRegistry,
-            ToolContextKey.task_base_path: task_base_path
+            ToolContextKey.task_base_path: task_base_path,
+            ToolContextKey.repo_path: repo_path
         }
         for tool in tools:
             tool.initialize(context)
@@ -42,3 +46,9 @@ class SetupHelper:
         builder = SkillTreeBuilder(root_skill_file)
         rootNode = builder.build()
         return SkillRegistry(rootNode)
+
+    @staticmethod
+    def setup_utils_with_paths(repo_path: str, task_base_path: str) -> None:
+        TaskFileUtils.set_task_path(task_base_path)
+        GitUtils.set_repo_path(repo_path)
+        CodeUtils.set_base_path(repo_path)

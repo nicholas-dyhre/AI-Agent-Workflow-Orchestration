@@ -26,7 +26,7 @@ You MUST output tasks using this model:
 
 # Completing a prompt
 
-Any agent that runs, must deliver results as a Task, persisted as a file. Tools tagged with {{TASK_-_TAGS}} enable access to accomplish such persistence, updates and revisions.
+Any agent that runs, must deliver results as a Task, persisted as a file. Tools tagged with {{TASK_TAGS}} enable access to accomplish such persistence, updates and revisions.
 
 # TASK COMPLETION RULES (STRICT)
 

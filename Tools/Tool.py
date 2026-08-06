@@ -21,7 +21,7 @@ OutputT = TypeVar("OutputT", bound=ToolOutput)
 
 class ToolException(BaseModel, Generic[InputT]):
     tool: str
-    input: InputT
+    input: InputT | dict[str, Any]
     error: str
 
     def to_string(self) -> str:
@@ -90,6 +90,16 @@ class Tool(BaseModel, Generic[InputT, OutputT]):
         try:
             result = self.run(input_data)
 
+            if result.success is not True:
+                return ToolResult[OutputT](
+                    data=result,
+                    error=ToolException(
+                        tool=self.name,
+                        input = input_data,
+                        error = result.message
+                    )
+                )
+
             return ToolResult[OutputT](
                 data=result
             )
@@ -139,12 +149,9 @@ class Tool(BaseModel, Generic[InputT, OutputT]):
 
         return (
             f"tool_name: {self.name}\n"
-            f"When to use:\n"
-            f"{self._infer_usage_hint()}\n\n"
+            f"Tool_description: {self.description}\n"
             f"Input:\n"
-            f"{chr(10).join(input_fields)}\n\n"
-            # f"Output:\n"
-            # f"{chr(10).join(output_fields)}\n"
+            f"{chr(10).join(input_fields)}\n"
         )
 
 

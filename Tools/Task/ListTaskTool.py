@@ -1,51 +1,36 @@
-import json
 from pathlib import Path
 from typing import Any, Optional, Type
-
 from pydantic import BaseModel, Field, PrivateAttr
-
 from Tasks.Task import Task
 from Tools.Tool import Tool, ToolOutput
 from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
+from Tools.Task.TaskFileUtils import TaskFileUtils
+
 
 class ListTasksInput(BaseModel):
-    void: None = Field(
-        default=None,
-        description="Input '{}' is valid."
-    )
+    pass
 
 
 class ListTasksOutput(ToolOutput):
     tasks: list[Task]
     task_count: int
     skipped_files: list[str]
-    message: str
 
     def to_string(self) -> str:
-        result = (
+        result = super().to_string()
+        result += (
             f"- Task Count: {self.task_count}\n"
-            f"- Message: {self.message}\n"
         )
 
         if self.tasks:
             result += "\nTasks:\n"
-
             for task in self.tasks:
-                result += (
-                    f"  - {task.id}: {task.title} "
-                    f"({task.status})\n"
-                )
+                result += f"  - {task.id}: {task.title} ({task.status})\n"
 
         if self.skipped_files:
-            result += (
-                "\nSkipped Files:\n"
-                + "\n".join(
-                    f"  - {file}"
-                    for file in self.skipped_files
-                )
-            )
+            result += "\nSkipped Files:\n" + "\n".join(f"  - {file}" for file in self.skipped_files)
 
         return result
 
@@ -70,43 +55,22 @@ class ListTasksTool(Tool[ListTasksInput, ListTasksOutput]):
 
         self._task_base_path = task_base_path
 
-    def run(self, input: ListTasksInput = ListTasksInput()) -> ListTasksOutput:
-        if not self._task_base_path:
-            raise Exception("Task base path must be provided in context")
-        path = Path(self._task_base_path)
+    def run(self, input: ListTasksInput) -> ListTasksOutput:
+        try:
+            tasks, skipped_files = TaskFileUtils.load_all_tasks()
 
-        tasks: list[Task] = []
-        skipped_files: list[str] = []
-
-        if not path.exists():
+            return ListTasksOutput(
+                success=True,
+                tasks=tasks,
+                task_count=len(tasks),
+                skipped_files=skipped_files,
+                message="Tasks successfully loaded."
+            )
+        except Exception as e:
             return ListTasksOutput(
                 success=False,
                 tasks=[],
                 task_count=0,
                 skipped_files=[],
-                message="Task storage directory does not exist."
+                message=f"Failed to load tasks: {e}"
             )
-
-        for file in path.glob("*.json"):
-            try:
-                data = json.loads(
-                    file.read_text(encoding="utf-8")
-                )
-
-                tasks.append(
-                    Task(**data)
-                )
-
-            except (json.JSONDecodeError, TypeError, KeyError) as e:
-                skipped_files.append(file.name)
-                print(
-                    f"[ListTasksTool] Warning: Failed to parse task file {file.name}: {e}"
-                )
-
-        return ListTasksOutput(
-            success=True,
-            tasks=tasks,
-            task_count=len(tasks),
-            skipped_files=skipped_files,
-            message="Tasks successfully loaded."
-        )

@@ -33,6 +33,8 @@ class LLM:
         self.num_ctx = num_ctx
         self.num_predict = num_predict
         self.num_gpu = num_gpu
+        self.cache_hits_streak: int = 0
+        self.cache_hit_streak_limit: int = 5
 
     # ============================================================
     # Public Call Interface
@@ -48,7 +50,11 @@ class LLM:
         if self.cache:
             cached = self.cache.get(prompt)
             if cached:
+                self.cache_hits_streak += 1
+                if self.cache_hits_streak >= self.cache_hit_streak_limit:
+                    raise Exception("Cache hit streak limit reached. Infinite loop expected. Breaking...")
                 return cached
+            self.cache_hits_streak += 0
 
         match self.provider:
             case LLMProvider.OLLAMA:
@@ -70,9 +76,13 @@ class LLM:
         if self.cache:
             cached = self.cache.get(prompt)
             if cached:
+                self.cache_hits_streak += 1
+                if self.cache_hits_streak >= self.cache_hit_streak_limit:
+                    raise Exception("Cache hit streak limit reached. Infinite loop expected. Breaking...")
                 # Yield the cached data as one single chunk, then exit the generator
                 yield cached
                 return
+            self.cache_hits_streak += 0
 
         match self.provider:
             case LLMProvider.OLLAMA:
@@ -117,7 +127,7 @@ class LLM:
             time.sleep(3)
 
         # Trigger an on-demand pull to guarantee the specified model is installed
-        print(f"[LLM] Verifying availability of local model: {self.model}")
+        # print(f"[LLM] Verifying availability of local model: {self.model}")
         try:
             pull_url = f"{base_endpoint}/api/pull"
             requests.post(pull_url, json={"name": self.model}, timeout=5)
@@ -149,10 +159,10 @@ class LLM:
             url, json={"model": self.model, "prompt": prompt, "stream": False}
         )
 
-        print(f"[LLM] Status Code: {response.status_code}")
+        # print(f"[LLM] Status Code: {response.status_code}")
 
-        if response.status_code != 200:
-            print(f"[LLM] Response Text: {response.text}")
+        # if response.status_code != 200:
+            # print(f"[LLM] Response Text: {response.text}")
 
         response.raise_for_status()
         return response.json()["response"]

@@ -10,9 +10,9 @@
 
 ## Use:
 
-- switchMap → `dependent-flows`
-- forkJoin → `parallel-calls`
-- combineLatest → `reactive-composition`
+- rxjs, async, switchMap → `dependent-flows`
+- rxjs, async, forkJoin → `parallel-calls`
+- rxjs, observables, combineLatest → `reactive-composition`
 
 ---
 

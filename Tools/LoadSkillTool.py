@@ -10,11 +10,11 @@ from Tools.tool_utils.ToolCapability import ToolCapability
 class LoadSkillInput(BaseModel):
     skill_names: list[str] = Field(
         ...,
-        description="The path to the skill file to be loaded into",
+        description="List of names of skill. It must be an exact match with the provided skills",
     )
     skill_keywords: list[str] = Field(
         ...,
-        description="The keywords to search for in the skill file",
+        description="list of keywords. It must be an exact match with the provided keywords for skills",
     )
 
 class LoadSkillOutput(ToolOutput):
@@ -24,9 +24,9 @@ class LoadSkillOutput(ToolOutput):
     def to_string(self) -> str:
         result = super().to_string()
 
-        if self.skill_nodes:
-            for node in self.skill_nodes:
-                result += f"- {node.name} \n"
+        # if self.skill_nodes:
+        #     for node in self.skill_nodes:
+        #         result += f"- {node.name} \n"
 
         return result
     
@@ -56,28 +56,35 @@ class LoadSkillTool(Tool[LoadSkillInput, LoadSkillOutput]):
         if not self._skill_registry: 
             raise ValueError("skillRegistry has not been configured via initialize().") 
         
-        nodes = self._find_nodes(input) 
+        message, nodes = self._find_nodes(input) 
+        
         if not nodes:
             return LoadSkillOutput(
                 skill_nodes = None,
                 skill_keywords = None,
                 success = False,
-                message = f"You have tried to provided invalid names or keywords. Please use the skill names or keywords provided in AVAILABLE SKILLS \n"
+                message = f"Invalid names or keywords. Provide only skill names or keywords provided in the prompt \n" + message
             )
 
         return LoadSkillOutput(
             skill_nodes = nodes,
             skill_keywords = input.skill_keywords,
             success = True,
-            message = f"Successfully loaded skills {len(nodes)} skills \n",
+            message = message,
         )
 
-    def _find_nodes(self, input: LoadSkillInput) -> list[SkillNode] | None:
-        raw_nodes = self._find_by_names(input.skill_names)
+    def _find_nodes(self, input: LoadSkillInput) -> tuple[str, list[SkillNode]]:
+        name_message, raw_nodes = self._find_by_names(input.skill_names)
         raw_keyword_nodes = self._find_by_keywords(input.skill_keywords)
 
         nodes: list[SkillNode] = raw_nodes if raw_nodes is not None else []
         keyword_nodes: list[SkillNode] = raw_keyword_nodes if raw_keyword_nodes is not None else []
+        
+        keywords_message = ""
+        if not keyword_nodes:
+            keywords_message += "Keywords yielded no results: \n"
+            keywords_message += " | ".join(input.skill_keywords)
+            keywords_message += "\n"
 
         combined = nodes + keyword_nodes
         
@@ -87,26 +94,32 @@ class LoadSkillTool(Tool[LoadSkillInput, LoadSkillOutput]):
             if node and node.name and node.name not in seen:
                 seen.add(node.name)
                 merged.append(node)
+                
+        message = f"found {len(merged)} skill nodes \n" + name_message + keywords_message 
         print(f"found {len(merged)} skill nodes")
-        return merged if merged else None
+        return message, merged if merged else []
 
-    def _find_by_names(self, skill_names: list[str]) -> list[SkillNode] | None:
+    def _find_by_names(self, skill_names: list[str]) -> tuple[str, list[SkillNode]]:
         nodes: list[SkillNode] = []
+        message: str = ""
         for skill_name in skill_names:
             node = self._find_by_name(skill_name)
-            if node is not None:
+            if isinstance(node, SkillNode):
                 nodes.append(node)
-        return nodes
+            else:
+                message += node
+        return message, nodes
     
-    def _find_by_name(self, skill_name: str) -> SkillNode | None:
+    def _find_by_name(self, skill_name: str) -> SkillNode | str:
         if self._skill_registry is None:
             raise ValueError("skillRegistry has not been configured via initialize().")
         node_result = self._skill_registry.get(skill_name)
         if node_result is not None:
             return node_result
-        print("Could not find skill path: ", skill_name)
+        
+        return(f"- Skill with name not found: {skill_name} \n")
 
-    def _find_by_keywords(self, skill_keywords: list[str]) -> list[SkillNode] | None:
+    def _find_by_keywords(self, skill_keywords: list[str]) -> list[SkillNode]:
         if self._skill_registry is None:
             raise ValueError("skillRegistry has not been configured via initialize().")
         nodes = self._skill_registry.find_by_keywords(skill_keywords)

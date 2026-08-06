@@ -1,22 +1,19 @@
-import json
 import os
 import sys
 from typing import List
 from Agent.AgentNames import AgentName
-from Agent.AgentResponse import AgentResponse
 from LLM.LLM import LLM
 from LLM.LLMCache import LLMCache
 from LLM.LLMProvider import LLMProvider
 from Orchestration.Orchestrator import Orchestrator
-from Skills.skill_utils.SkillNode import SkillNode
-from Tasks.Task import PlanStep, Task
+from Tasks.Task import Task
 from Tasks.TaskState import State
 from Agent.DeveloperAgent import DeveloperAgent
 from Agent.PlannerAgent import PlannerAgent
 from Agent.ProjectPlannerAgent import ProjectPlannerAgent
 from Agent.ReviewerAgent import ReviewerAgent
 from Bootstrap.SetupHelper import SetupHelper
-
+from Tools.Git.GitUtils import GitUtils
 
 def main(args=sys.argv[1:]):
     if len(args) < 1:
@@ -41,8 +38,9 @@ def main(args=sys.argv[1:]):
     print("Starting AI Agent Orchestrator...")
 
     skillRegistry = SetupHelper.create_skill_registry()
-    toolSelector = SetupHelper.CreateToolRegistry(skillRegistry, task_path)
+    toolSelector = SetupHelper.CreateToolRegistry(skillRegistry, repo_path, task_path)
     skillSelector = SetupHelper.create_skill_selector(skillRegistry)
+    SetupHelper.setup_utils_with_paths(repo_path, task_path)
 
     qwen_2_5_coder_7b_instruct_stream = LLM(
         LLMProvider.OLLAMA,
@@ -75,12 +73,12 @@ def main(args=sys.argv[1:]):
         ),
     }
 
-    print(f"prompt ")
+    GitUtils.create_repository()
 
     orchestrator = Orchestrator(agents=agents, task_repo=task_path, max_cycles=50)
 
-    orchestrator.runProjectPlanner(prompt)
-    orchestrator.run_all_ready_tasks()
+    # orchestrator.runProjectPlanner(prompt)
+    orchestrator.run_all_ready_tasks(prompt)
 
     print("\n===== FINISHED =====")
     print(f"project path: {repo_path}")

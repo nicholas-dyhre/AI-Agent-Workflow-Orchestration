@@ -1,6 +1,4 @@
-import json
 import uuid
-from pathlib import Path
 from typing import Any, Optional, Type
 from pydantic import BaseModel, Field, PrivateAttr, model_validator
 from Tasks.TaskState import State
@@ -8,6 +6,7 @@ from Tools.Tool import Tool, ToolOutput
 from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
+from Tools.Task.TaskFileUtils import TaskFileUtils
 
 class CreateTasksInput(BaseModel):
     titles: list[str] = Field(
@@ -35,10 +34,9 @@ class CreateTasksOutput(ToolOutput):
     message: str
 
     def to_string(self) -> str:
-        result = (
-            f"- Success: {self.success}\n"
+        result = super().to_string()
+        result += (
             f"- Created Count: {self.created_count}\n"
-            f"- Message: {self.message}\n"
         )
         if self.created_tasks:
             result += "\nCreated Tasks:\n"
@@ -56,68 +54,42 @@ class CreateTasksTool(Tool[CreateTasksInput, CreateTasksOutput]):
     input_model: Type[CreateTasksInput] = CreateTasksInput
     output_model: Type[CreateTasksOutput] = CreateTasksOutput
 
-    _task_base_path: Optional[str] = PrivateAttr()
-    
-    def initialize(self, context: dict[ToolContextKey, Any]) -> None:
-        task_base_path = context[ToolContextKey.task_base_path]
-        if task_base_path is None:
-            raise Exception("No task base path provided in context")
-        if not isinstance(task_base_path, str):
-            raise TypeError("task_base_path must be a str")
-
-        self._task_base_path = task_base_path
-
     def run(self, input: CreateTasksInput) -> CreateTasksOutput:
-        if not self._task_base_path:
-            print(f"Configuration Error: Task base path must be provided in context.")
-            return CreateTasksOutput(
-                success=False,
-                created_tasks=[],
-                created_count=0,
-                message="Configuration Error: Task base path must be provided in context."
-            )
-
-        write_path = Path(self._task_base_path)
-        
-        try:
-            write_path.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            print(f"File System Error: Unable to verify or create storage directory: {e}")
-            return CreateTasksOutput(
-                success=False,
-                created_tasks=[],
-                created_count=0,
-                message=f"File System Error: Unable to verify or create storage directory: {e}"
-            )
-
         created_records = []
+        tasks_data: list[dict[str, Any]] = []
+        task_ids: list[str] = []
 
-        for title, description in zip(input.titles, input.descriptions):
-            task_id = str(uuid.uuid4())
-            
-            task_data = {
-                "id": task_id,
-                "title": title.strip(),
-                "description": description.strip(),
-                "status": State.CREATED.value
-            }
+        try:
+            for title, description in zip(input.titles, input.descriptions):
+                task_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, title.strip()))
+                
+                task_data = {
+                    "id": task_id,
+                    "title": title.strip(),
+                    "description": description.strip(),
+                    "status": State.CREATED.value
+                }
+                tasks_data.append(task_data)
+                task_ids.append(task_id)
 
-            file_target = write_path / f"{task_id}.json"
-            
-            try:
-                file_target.write_text(
-                    json.dumps(task_data, indent=4, ensure_ascii=False), 
-                    encoding="utf-8"
-                )
-                created_records.append(task_data)
-            except Exception as e:
-                print(f"Task Failed to Save: {e}")
-                return CreateTasksOutput(
-                    success=False,
-                    created_tasks=created_records,
-                    created_count=len(created_records),
-                    message=f"Partial Save Failure: Process halted while writing task '{title}'. Disk Error: {e}"
-                )
+                created_records.append(TaskFileUtils.create_task(task_data))
+
+        except Exception as e:
+            return CreateTasksOutput(
+                success=False,
+                created_tasks=[],
+                created_count=0,
+                message=f"Failed to create files. \n Error: {e}."
+            )
+
+        if isinstance(created_records, str):
+            return CreateTasksOutput(
+                success=False,
+                created_tasks=[],
+                created_count=0,
+                message=f"Failed to create tasks. \n Error: {created_records}."
+            )
+        
         print(f"Tasks saved successfully. {len(created_records)} tasks have been added to the backlog.")
         return CreateTasksOutput(
             success=True,
