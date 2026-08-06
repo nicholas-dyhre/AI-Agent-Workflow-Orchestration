@@ -56,6 +56,11 @@ Step actions include:
       "default": null,
       "description": "CRITICAL - REQUIRED FIELD: Always describe your reasoning for the action you take"
     },
+    "goal": {
+      "type": ["string"],
+      "default": null,
+      "description": "CRITICAL - REQUIRED FIELD: You MUST output this field every single step. Do NOT describe what you are about to do next. Instead, explicitly recite your high-level definition of success. You must state: 1) The ultimate problem you are tasked with solving. 2) Any hard boundaries, explicit rules, or mandatory requirements given in your instructions (e.g., 'I must use the search tool first', 'I am strictly forbidden from using tool X', or 'I must save changes to a file before finishing'). This field acts as your persistent anchor to prevent goal-drift."
+    },
     "tool_name": {
       "type": ["string", "null"],
       "default": null,
@@ -72,10 +77,23 @@ Step actions include:
       "description": "The terminal string payload resolving the user's inquiry. Mandatory if action is 'final'. Must be null if action is 'tool'."
     }
   },
-  "required": ["action", "reasoning"],
+  "required": ["action", "reasoning", "goal"],
   "additionalProperties": false
 }
 ```
+
+## Anti-Ambiguity Rule
+
+If something is unclear:
+
+- create a task for clarification instead of guessing
+
+Example:
+
+- "Define product domain model"
+- "Clarify authentication requirements"
+
+---
 
 </RULES_AND_CONSTRAINTS>
 
@@ -89,19 +107,31 @@ Step actions include:
 
 <TASK_WORKFLOW>
 {{TASK_WORKFLOW}}
-<TASK_WORKFLOW>
+</TASK_WORKFLOW>
 
 ---
 
 <OUTPUT_RULES>
 {{OUTPUT_RULES}}
-<OUTPUT_RULES>
+</OUTPUT_RULES>
 
 ---
 
 <ROLE_AND_OBJECTIVE>
 {{AGENT_PROMPT}}
-<ROLE_AND_OBJECTIVE>
+
+---
+
+## GOAL
+
+You are working in a team of AI agents, that is trying to solve a large goal.
+Final Goal: {{FINAL GOAL}}
+
+You are working on a specific thing in accomplishing the Final Goal.
+Current task: {{CURRENT_TASK}}
+
+You can measure your progress towards your current task with the following tool: {{GOAL_CHECKER_TOOLS}} . If either of these fails, or does not indicate an output of high quality and correctness, your current task is not solved.
+</ROLE_AND_OBJECTIVE>
 
 ---
 

@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -9,16 +7,17 @@ from Tools.Tool import Tool, ToolOutput
 from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
+from Tools.Task.TaskFileUtils import TaskFileUtils
 
 
 class PatchTaskInput(BaseModel):
     task_id: str = Field(
         ...,
-        description="The unique identifier (UUID or unique string name) of the task to update."
+        description="Writing the exact string '{{TASK_ID}}' will ensure infrastructure inserts correct taskid."
     )
     updates: Dict[str, Any] = Field(
         ...,
-        description="A key-value dictionary containing the fields to update (e.g., {'status': 'completed', 'priority': 'high'})."
+        description="A key-value dictionary containing the fields to update (e.g., {'status': 'completed'})."
     )
     base_path: str = Field(
         default="tasks",
@@ -27,7 +26,7 @@ class PatchTaskInput(BaseModel):
 
 
 class PatchTaskOutput(ToolOutput):
-    task: Task
+    task: Task | None
     updated_fields: list[str]
 
     def to_string(self) -> str:
@@ -68,43 +67,28 @@ class PatchTaskTool(Tool[PatchTaskInput, PatchTaskOutput]):
     def run(self, input: PatchTaskInput) -> PatchTaskOutput:
         if not self._task_base_path:
             raise Exception("Task base path must be provided in context")
-        path = Path(self._task_base_path)
-        file_path = path / f"{input.task_id}.json"
-
-        if not file_path.exists():
-            raise ValueError(
-                f"Task matching ID '{input.task_id}' was not found in storage."
-            )
-
+        
         try:
-            current_data = json.loads(
-                file_path.read_text(encoding="utf-8")
-            )
-
-            current_data.update(input.updates)
-
-            updated_task = Task(**current_data)
-
-            file_path.write_text(
-                json.dumps(
-                    updated_task.model_dump(),
-                    indent=2,
-                    ensure_ascii=False
-                ),
-                encoding="utf-8"
-            )
-
-            return PatchTaskOutput(
-                success = True,
-                task=updated_task,
-                updated_fields=list(input.updates.keys()),
-                message="Task successfully patched and persisted."
-            )
-
-        except (json.JSONDecodeError, TypeError, KeyError) as e:
+            updated_task = TaskFileUtils.patch_task(input.task_id, input.updates)
+        except Exception as e:
             return PatchTaskOutput(
                 success = False,
-                task=updated_task,
+                task=None,
                 updated_fields=list(input.updates.keys()),
-                message=f"Failed to apply patch due to a data processing or schema error: {e}"
+                message=f"Failed to apply patch due to a data processing or schema error: {e} \n"
             )
+
+        if isinstance(updated_task, str):
+            return PatchTaskOutput(
+                success = False,
+                task=None,
+                updated_fields=list(input.updates.keys()),
+                message=f"Failed to apply patch. Error: {updated_task} \n"
+            )
+
+        return PatchTaskOutput(
+            success = True,
+            task=updated_task,
+            updated_fields=list(input.updates.keys()),
+            message="Task successfully patched and persisted. \n"
+        )

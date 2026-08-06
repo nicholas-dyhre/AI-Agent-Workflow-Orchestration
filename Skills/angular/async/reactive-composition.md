@@ -10,7 +10,7 @@
 
 ## Use:
 
-Multi-source filtering →|| `search + category + page`
+observables, Multi-source filtering →|| `search + category + page`
 Form validation →|| `combine independent control states`
 Dynamic UI state →|| `combine user preferences with data`
 

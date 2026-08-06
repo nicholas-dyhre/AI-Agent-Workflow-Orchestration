@@ -1,12 +1,9 @@
 from pathlib import Path
 from typing import Type
-
 from pydantic import BaseModel, Field
-
 from Tools.Tool import Tool, ToolOutput
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
-
 
 class CodeGenInput(BaseModel):
     file_path: str = Field(
@@ -17,7 +14,6 @@ class CodeGenInput(BaseModel):
         ...,
         description="The complete source code string payload that needs to be written to the file."
     )
-
 
 class CodeGenOutput(ToolOutput):
     file_written: str
@@ -42,12 +38,11 @@ class CodeGenOutput(ToolOutput):
 
         return result
 
-
 class CodeGeneratorTool(Tool[CodeGenInput, CodeGenOutput]):
     name: str = "CodeGeneratorTool"
     description: str = "Writes or overwrites complete source code files directly to the filesystem with the appropriate language extension."
     tags: list[ToolTag] = [ToolTag.DEVELOPMENT, ToolTag.FILESYSTEM, ToolTag.GENERATION]
-    capabilities: list[ToolCapability] = [ToolCapability.WRITE_FILES, ToolCapability.GENERATE_CODE]
+    capabilities: list[ToolCapability] = [ToolCapability.WRITE_FILES, ToolCapability.GENERATE_CODE, ToolCapability.CODE]
     path: str = "Tools/CodeGeneratorTool.py"
     input_model: Type[CodeGenInput] = CodeGenInput
     output_model: Type[CodeGenOutput] = CodeGenOutput

@@ -59,7 +59,7 @@ Forbidden:
 - templates, html → `template-optimization`
 - state, signals → `state-management`
 - memory, leaks → `memory-management`
-- architecture, structure → `angular-architecture`
+- angular, architecture, structure → `angular-architecture`
 
 ---
 

@@ -1,32 +1,42 @@
-import json
-from pathlib import Path
-from typing import Any, Optional, Type
-
-from pydantic import BaseModel, Field, PrivateAttr
-
+import datetime
+from typing import Type
+from pydantic import BaseModel, Field
+from Agent.AgentNames import AgentName
+from Tasks.Task import AgentLog
 from Tools.Tool import Tool, ToolOutput
-from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
+from Tools.Task.TaskFileUtils import TaskFileUtils
 
 class AppendTaskLogToolInput(BaseModel):
+    agent_name: str = Field(
+        "some_name",
+        description="Inputs for this field will be overriden during runtime. Not required to be set when creating the tool input.",
+    )
     task_id: str = Field(
         ...,
-        description="Id of the task to append to"
+        description="Writing the exact string '{{TASK_ID}}' will ensure infrastructure inserts correct taskid."
     )
-    log_entry: dict = Field(
+    log_entry_input: str = Field(
         ...,
-        description="The log to append to the tasks log list"
+        description="Describe the changes you made to the task, and any other relevant information. This will be stored in the task's log."
     )
+    log_entry_output: str = Field(
+        ...,
+        description="Describe the effect these changes had on the task, and why these results improves the solution."
+    )
+
 
 
 class AppendTaskLogToolOutput(ToolOutput):
     task_id: str
 
     def to_string(self) -> str:
-        return (
+        result = super().to_string()
+        result += (
             f"- Task ID: {self.task_id}"
         )
+        return result
 
 
 class AppendTaskLogTool(Tool[AppendTaskLogToolInput, AppendTaskLogToolOutput]):
@@ -38,45 +48,30 @@ class AppendTaskLogTool(Tool[AppendTaskLogToolInput, AppendTaskLogToolOutput]):
     input_model: Type[AppendTaskLogToolInput] = AppendTaskLogToolInput
     output_model: Type[AppendTaskLogToolOutput] = AppendTaskLogToolOutput
 
-    _task_base_path: Optional[str] = PrivateAttr()
-    
-    def initialize(self, context: dict[ToolContextKey, Any]) -> None:
-        task_base_path = context[ToolContextKey.task_base_path]
-        if task_base_path is None:
-            raise Exception("No task base path provided in context")
-        if not isinstance(task_base_path, str):
-            raise TypeError("task_base_path must be a str")
-
-        self._task_base_path = task_base_path
-
     def run(self, input: AppendTaskLogToolInput) -> AppendTaskLogToolOutput:
-        if not self._task_base_path:
-            raise Exception("Task base path must be provided in context")
-        path = Path(self._task_base_path)
-
-        file_path = path / f"{input.task_id}.json"
-
-        if not file_path.exists():
+        try:
+            message, success = TaskFileUtils.append_log_to_task(input.task_id, AgentLog(
+                agent=AgentName(input.agent_name),
+                input=input.log_entry_input,
+                output=input.log_entry_output,
+                timestamp=datetime.datetime.now().isoformat()
+            ))
+        except Exception as e:
             return AppendTaskLogToolOutput(
                 success=False,
-                message = f"Task not found: {input.task_id}",
+                message=f"Could not append Task log. \n Error: {str(e)}",
+                task_id=input.task_id,
+            )
+
+        if success is False:
+            return AppendTaskLogToolOutput(
+                success=False,
+                message = f"Could not append Task log. \n Error: {message}",
                 task_id = input.task_id,
             )
-            
-        data = json.loads(file_path.read_text(encoding="utf-8"))
-
-        if "logs" not in data:
-            data["logs"] = []
-
-        data["logs"].append(input.log_entry)
-
-        file_path.write_text(
-            json.dumps(data, indent=2),
-            encoding="utf-8"
-        )
-
-        return AppendTaskLogToolOutput(
-            success=True,
-            message = "Log added successfully.",
-            task_id = input.task_id,
-        )
+        else:
+            return AppendTaskLogToolOutput(
+                success=True,
+                message = "Log added successfully",
+                task_id = input.task_id,
+            )
