@@ -2,6 +2,7 @@
 .venv/
 .ruff_cache/
 .llm_cache/
+.kilo/
 
 # --- Python Build & Runtime Artifcts ---
 __pycache__/
@@ -39,6 +40,7 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
+ruff.toml
 
 # --- Environment and Secret files ---
 .env
