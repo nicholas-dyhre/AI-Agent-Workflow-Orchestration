@@ -22,11 +22,11 @@ class GetDiffTool(Tool[GetDiffInput, GetDiffOutput]):
     description: str = "Returns a well-structured GitHub-style review diff with anchor lines context scopes to prevent code blindness."
     tags: list[ToolTag] = [ToolTag.DEVELOPMENT, ToolTag.GIT]
     capabilities: list[ToolCapability] = [ToolCapability.READ_FILES, ToolCapability.CODE]
-    path: str = "Tools/GetDiffTool.py"
+    path: str = "Tools/code/GetDiffTool.py"
     input_model: Type[GetDiffInput] = GetDiffInput
     output_model: Type[GetDiffOutput] = GetDiffOutput
 
-    def run(self, input: GetDiffInput) -> GetDiffOutput:
+    def run(self, input_data: GetDiffInput) -> GetDiffOutput:
         try:
             diff_data = GitUtils.get_rich_contextual_diff()
             return GetDiffOutput(rich_diff_context=diff_data, success=True, message="Workspace modifications diff compiled.")

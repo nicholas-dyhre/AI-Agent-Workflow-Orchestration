@@ -23,7 +23,7 @@ class GitGetBranchTool(Tool[GitGetBranchInput, GitGetBranchOutput]):
     input_model: Type[GitGetBranchInput] = GitGetBranchInput
     output_model: Type[GitGetBranchOutput] = GitGetBranchOutput
 
-    def run(self, input: GitGetBranchInput) -> GitGetBranchOutput:
+    def run(self, input_data: GitGetBranchInput) -> GitGetBranchOutput:
         try:
             branch = GitUtils.get_current_branch()
             return GitGetBranchOutput(current_branch=branch, success=not branch.startswith("Error"), message=f"Checked out branch: {branch}")

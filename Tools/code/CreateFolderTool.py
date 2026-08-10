@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Type
 from pydantic import BaseModel, Field
 from Tools.Tool import Tool, ToolOutput
@@ -7,9 +8,9 @@ from Tools.tool_utils.ToolCapability import ToolCapability
 
 
 class CreateDirectoryInput(BaseModel):
-    paths: list[str | None] = Field(
+    sub_paths: list[str] = Field(
         ...,
-        description="Provide a list of subpaths with in the working directory, where new directories should be created.",
+        description="Creates a folder on paths"
     )
 
 class CreateDirectoryOutput(ToolOutput):
@@ -22,34 +23,32 @@ class CreateDirectoryOutput(ToolOutput):
         return result
 
 
-class CreateDirectoryTool(Tool[CreateDirectoryInput, CreateDirectoryOutput]):
-    name: str = "CreateDirectoryTool"
-    description: str = """Creates a directory at the specified path"""
+class CreateFolderTool(Tool[CreateDirectoryInput, CreateDirectoryOutput]):
+    name: str = "CreateFolderTool"
+    description: str = """Folder creater tool"""
     tags: list[ToolTag] = [ToolTag.DEVELOPMENT, ToolTag.TESTING]
     capabilities: list[ToolCapability] = [ToolCapability.EXECUTE_COMMANDS, ToolCapability.CODE, ToolCapability.WRITE_FILES]
-    path: str = "Tools/CreateDirectoryTool.py"
+    path: str = "Tools/code/CreateFolderTool.py"
     input_model: Type[CreateDirectoryInput] = CreateDirectoryInput
     output_model: Type[CreateDirectoryOutput] = CreateDirectoryOutput
 
-    def run(self, input: CreateDirectoryInput) -> CreateDirectoryOutput:
+    def run(self, input_data: CreateDirectoryInput) -> CreateDirectoryOutput:
         try:
             responses: list[tuple[str, bool]] = []
-            for sub_path in input.paths:
-                if sub_path is None:
-                    responses.append(("", False))
-                    continue
+            for sub_path in input_data.sub_paths:
+                sub_path = str(Path(sub_path).with_suffix(''))
                 isSuccess, response = CodeUtils.create_directory(sub_path)
                 responses.append((response, isSuccess))
             return CreateDirectoryOutput(
                 created_directories = responses,
                 success=True,
-                message="Directory creation completed without errors."
+                message="Tool terminated correctly"
             )
         except Exception as e:
             return CreateDirectoryOutput(
                 created_directories = [],
                 success=False,
-                message=f"Directory encountered a problem and did not complete for paths '{input.paths}'. \n Error: {str(e)}"
+                message=f"Directory encountered a problem and did not complete for paths '{input_data.sub_paths}'. \n Error: {str(e)}"
             )
 
 

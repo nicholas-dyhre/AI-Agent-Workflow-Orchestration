@@ -1,9 +1,7 @@
-from pathlib import Path
-from typing import Any, Optional, Type
-from pydantic import BaseModel, Field, PrivateAttr
+from typing import Type
+from pydantic import BaseModel
 from Tasks.Task import Task
 from Tools.Tool import Tool, ToolOutput
-from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
 from Tools.Task.TaskFileUtils import TaskFileUtils
@@ -44,18 +42,7 @@ class ListTasksTool(Tool[ListTasksInput, ListTasksOutput]):
     input_model: Type[ListTasksInput] = ListTasksInput
     output_model: Type[ListTasksOutput] = ListTasksOutput
 
-    _task_base_path: Optional[str] = PrivateAttr()
-    
-    def initialize(self, context: dict[ToolContextKey, Any]) -> None:
-        task_base_path = context[ToolContextKey.task_base_path]
-        if task_base_path is None:
-            raise Exception("No task base path provided in context")
-        if not isinstance(task_base_path, str):
-            raise TypeError("task_base_path must be a str")
-
-        self._task_base_path = task_base_path
-
-    def run(self, input: ListTasksInput) -> ListTasksOutput:
+    def run(self, input_data: ListTasksInput) -> ListTasksOutput:
         try:
             tasks, skipped_files = TaskFileUtils.load_all_tasks()
 

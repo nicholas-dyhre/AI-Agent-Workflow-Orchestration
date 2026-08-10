@@ -1,65 +1,82 @@
-from typing import Type
-from pydantic import BaseModel, Field, model_validator
+from typing import Type, List
+from pydantic import BaseModel, Field
 from Tools.Tool import Tool, ToolOutput
 from Tools.code.CodeUtils import CodeUtils
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
 
+class FileWriterRequest(BaseModel):
+    sub_path: str = Field(
+        ...,
+        description="Relative path to file to write",
+    )
+    file_content: str = Field(
+        ...,
+        description="The content to be written to file."
+    )
 
 class FileWriterInput(BaseModel):
-    paths: list[str | None] = Field(
+    files: List[FileWriterRequest] = Field(
         ...,
-        description="List files in the specified directory path. If no relative sub path is provided, it defaults to the project root directory.",
+        description=(
+            "List of files write requests. Each item contains a path and file content"
+        )
     )
-    file_contents: list[str] = Field(
-        ...,
-        description="The content to be written to each file."
-    )
-
-    @model_validator(mode="after")
-    def validate_equal_lengths(self) -> "FileWriterInput":
-        if len(self.paths) != len(self.file_contents):
-            raise ValueError(
-                f"Mismatched array lengths. You provided {len(self.paths)} paths "
-                f"but {len(self.file_contents)} file_contents. Every path must have corresponding file content."
-            )
-        return self
 
 class FileWriterOutput(ToolOutput):
-    def to_string(self) -> str:
-            return super().to_string()
+    files_written: List[str]
+    files_not_written: List[tuple[str, str]]
 
+    def to_string(self) -> str:
+        result = super().to_string()
+
+        for path in self.files_written:
+            result += f"- file written: {path} \n"
+        for path, error in self.files_not_written:
+            result += f"- file not written: {path} | Error: {error} \n"
+        return result
 
 class FileWriterTool(Tool[FileWriterInput, FileWriterOutput]):
     name: str = "FileWriterTool"
-    description: str = """Overwrites or creates a file with complete content. Input lists must be equal lengths."""
-    tags: list[ToolTag] = [ToolTag.DEVELOPMENT, ToolTag.TESTING]
-    capabilities: list[ToolCapability] = [ToolCapability.EXECUTE_COMMANDS, ToolCapability.CODE, ToolCapability.WRITE_FILES]
-    path: str = "Tools/FileWriterTool.py"
+    description: str = """Creates file. Writes to file. Overrides contents. USE TO CREATE CODE"""
+    tags: List[ToolTag] = [ToolTag.DEVELOPMENT, ToolTag.FILESYSTEM, ToolTag.GENERATION]
+    capabilities: List[ToolCapability] = [ToolCapability.GENERATE_CODE, ToolCapability.CODE, ToolCapability.WRITE_FILES]
+    path: str = "Tools/code/FileWriterTool.py"
     input_model: Type[FileWriterInput] = FileWriterInput
     output_model: Type[FileWriterOutput] = FileWriterOutput
 
-    def run(self, input: FileWriterInput) -> FileWriterOutput:
+    def run(self, input_data: FileWriterInput) -> FileWriterOutput:
         try:
-            responses: list[str] = []
-            for sub_paths, file_contents in zip(input.paths, input.file_contents):
-                if sub_paths is None:
-                    sub_paths = "."
-                isSuccess, response = CodeUtils.write_file(sub_paths, file_contents)
-                if not isSuccess == True:
-                    return FileWriterOutput(
-                        success=False,
-                        message=f"Could not write to file(s) for paths '{input.paths}'. \n Responses: {'; '.join(responses)}. \n Error: {response}"
-                    )
-                responses.append(response)
+            files_written: List[str] = []
+            files_not_written: List[tuple[str, str]] = []
+            for file in input_data.files:
+                issuccess, message = CodeUtils.write_file(file.sub_path, file.file_content)
+                if issuccess:
+                    files_written.append(file.sub_path)
+                else:
+                    files_not_written.append((file.sub_path, message))
+
+            message = ""
+            message += f"Files written {len(files_written)}" if len(files_written) else ""
+            if message:
+                message += " | " if message else ""
+                message += f"files Not written {len(files_not_written)}" if len(files_not_written) else ""
+            else:
+                message += f"Files Not written {len(files_not_written)}"
+
             return FileWriterOutput(
-                success=True,
-                message="File(s) written successfully. Responses: " + "; ".join(responses)
+                success=False if files_not_written else True,
+                files_written=files_written,
+                files_not_written=files_not_written,
+                message=message
             )
+
         except Exception as e:
             return FileWriterOutput(
                 success=False,
-                message=f"Could not write to file(s) for paths '{input.paths}'. \n Responses: {'; '.join(responses)}. \n Error: {str(e)}"
+                files_written=[],
+                files_not_written=[],
+                message=f"Error: {str(e)}"
             )
 
 

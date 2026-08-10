@@ -36,12 +36,11 @@ class ProjectRunOutput:
         if not self.execution_output:
             message += f"No output for: {identifier} \n"
             return message, summary
-        if self.execution_output.is_success():
-            message += f"Success for: {identifier} \n"
-            summary += f"output for {identifier} \n stdout: {self.execution_output.stderr}"
-        else:
-            message += f"Success for: {identifier} \n"
-            summary += f"output for {identifier} \n stderr: {self.execution_output.stderr}"
+
+        message += f"Success for: {identifier}\n"
+        summary = f"output for {identifier} | "
+        summary += f"stdout: {self.execution_output.stdout} \n" if self.execution_output.is_success() else f"stderr: {self.execution_output.stderr} \n"
+    
         return message, summary
 
     def summarize_tests(self) -> str:

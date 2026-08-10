@@ -17,9 +17,9 @@ class ProjectPlannerAgent(BaseAgent):
         super().__init__(llm, tool_selector, skill_selector)
         self.name = AgentName.PROJECT_PLANNER.value
         self.agentName = AgentName.PROJECT_PLANNER
-        self.allowed_tags.extend([ToolTag.FILESYSTEM, ToolTag.PERSISTENCE])
-        self.allowed_capabilities.extend([ToolCapability.SAVE_TASKS, ToolCapability.MODIFY_TASKS, ToolCapability.READ_TASKS])
-        self.denied_capabilities.extend([
+        self.toolRepository.allowed_tags.extend([ToolTag.FILESYSTEM, ToolTag.PERSISTENCE])
+        self.toolRepository.allowed_capabilities.extend([ToolCapability.SAVE_TASKS, ToolCapability.MODIFY_TASKS, ToolCapability.READ_TASKS])
+        self.toolRepository.denied_capabilities.extend([
             ToolCapability.CREATE_PLAN_STEP, 
             ToolCapability.GIT,
             ToolCapability.CODE,
@@ -31,14 +31,14 @@ class ProjectPlannerAgent(BaseAgent):
             ToolCapability.GIT_GET_REPO_INFO,
             ToolCapability.GENERATE_CODE,
             ToolCapability.READ_PLAN_STEPS,
+            ToolCapability.MODIFY_PLAN_STEP
         ])
-        self.goal_checker_tools.extend([
-            ListTasksTool
-        ])
+        # self.goal_checker_tools.extend([
+        #     ListTasksTool
+        # ])
 
     def run(self, prompt: str):
         self.prepare(prompt)
-        self._template = f"# Project description: \n {prompt}" + self._template
 
         print(f"running {self.name}")
         status = False

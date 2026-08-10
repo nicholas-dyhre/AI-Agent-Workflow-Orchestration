@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Optional
 from typing import Generator
 from Skills.skill_utils.SkillNode import SkillNode
+from Common.ListUtils import flatten
 
 
 class SkillRegistry:
@@ -47,6 +48,14 @@ class SkillRegistry:
 
     def list(self) -> List[SkillNode]:
         return list(self._index.values())
+
+    def list_unique_keywords(self) -> set[str]:
+        keywords: set[str] = flatten([node.keywords for node in self._index.values()])
+        return keywords
+
+    def list_unique_names(self) -> set[str]:
+        names: set[str] = set([node.name for node in self._index.values()])
+        return names
 
     def search(self, keyword: str) -> List[SkillNode]:
         """Find skills matching a keyword."""

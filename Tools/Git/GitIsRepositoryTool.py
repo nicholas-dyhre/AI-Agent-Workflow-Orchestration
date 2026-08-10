@@ -23,7 +23,7 @@ class GitIsRepositoryTool(Tool[GitIsRepositoryInput, GitIsRepositoryOutput]):
     input_model: Type[GitIsRepositoryInput] = GitIsRepositoryInput
     output_model: Type[GitIsRepositoryOutput] = GitIsRepositoryOutput
 
-    def run(self, input: GitIsRepositoryInput) -> GitIsRepositoryOutput:
+    def run(self, input_data: GitIsRepositoryInput) -> GitIsRepositoryOutput:
         try:
             tracked = GitUtils.is_repository()
             msg = "Active tracking Git system found." if tracked else "Directory currently untracked by Git."

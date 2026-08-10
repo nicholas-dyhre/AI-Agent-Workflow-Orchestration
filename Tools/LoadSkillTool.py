@@ -52,11 +52,11 @@ class LoadSkillTool(Tool[LoadSkillInput, LoadSkillOutput]):
 
         self._skill_registry = skill_registry
 
-    def run(self, input: LoadSkillInput) -> LoadSkillOutput:
+    def run(self, input_data: LoadSkillInput) -> LoadSkillOutput:
         if not self._skill_registry: 
             raise ValueError("skillRegistry has not been configured via initialize().") 
         
-        message, nodes = self._find_nodes(input) 
+        message, nodes = self._find_nodes(input_data) 
         
         if not nodes:
             return LoadSkillOutput(
@@ -68,14 +68,14 @@ class LoadSkillTool(Tool[LoadSkillInput, LoadSkillOutput]):
 
         return LoadSkillOutput(
             skill_nodes = nodes,
-            skill_keywords = input.skill_keywords,
+            skill_keywords = input_data.skill_keywords,
             success = True,
             message = message,
         )
 
-    def _find_nodes(self, input: LoadSkillInput) -> tuple[str, list[SkillNode]]:
-        name_message, raw_nodes = self._find_by_names(input.skill_names)
-        raw_keyword_nodes = self._find_by_keywords(input.skill_keywords)
+    def _find_nodes(self, input_data: LoadSkillInput) -> tuple[str, list[SkillNode]]:
+        name_message, raw_nodes = self._find_by_names(input_data.skill_names)
+        raw_keyword_nodes = self._find_by_keywords(input_data.skill_keywords)
 
         nodes: list[SkillNode] = raw_nodes if raw_nodes is not None else []
         keyword_nodes: list[SkillNode] = raw_keyword_nodes if raw_keyword_nodes is not None else []
@@ -83,7 +83,7 @@ class LoadSkillTool(Tool[LoadSkillInput, LoadSkillOutput]):
         keywords_message = ""
         if not keyword_nodes:
             keywords_message += "Keywords yielded no results: \n"
-            keywords_message += " | ".join(input.skill_keywords)
+            keywords_message += " | ".join(input_data.skill_keywords)
             keywords_message += "\n"
 
         combined = nodes + keyword_nodes

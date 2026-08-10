@@ -16,15 +16,16 @@ class PlannerAgent(BaseAgent):
         super().__init__(llm, tool_selector, skill_selector)
         self.name = AgentName.PLANNER.value
         self.agentName = AgentName.PLANNER
-        self.allowed_tags.extend([ToolTag.TASKS, ToolTag.PERSISTENCE, ToolTag.FILESYSTEM, ToolTag.QUERY])
-        self.allowed_capabilities.extend([
+        self.toolRepository.allowed_tags.extend([ToolTag.TASKS, ToolTag.PERSISTENCE, ToolTag.FILESYSTEM, ToolTag.QUERY])
+        self.toolRepository.allowed_capabilities.extend([
             ToolCapability.MODIFY_TASKS, 
             ToolCapability.WRITE_TASK_LOGS, 
             ToolCapability.SAVE_TASKS, 
             ToolCapability.CREATE_PLAN_STEP, 
-            ToolCapability.READ_PLAN_STEPS
+            ToolCapability.READ_PLAN_STEPS,
+            ToolCapability.MODIFY_PLAN_STEP
         ])
-        self.denied_capabilities.extend([
+        self.toolRepository.denied_capabilities.extend([
             ToolCapability.CREATE_TASK, 
             ToolCapability.GIT,
             ToolCapability.CODE,
@@ -35,9 +36,9 @@ class PlannerAgent(BaseAgent):
             ToolCapability.GIT_GET_REPO_INFO,
             ToolCapability.GENERATE_CODE,
         ])
-        self.goal_checker_tools.extend([
-            ListPlanStepsTool
-        ])
+        # self.goal_checker_tools.extend([
+        #     ListPlanStepsTool
+        # ])
 
     def run(self, task: Task) -> Task:
         if task.plan:

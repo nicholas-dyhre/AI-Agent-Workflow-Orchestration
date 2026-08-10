@@ -37,6 +37,7 @@ class TaskFileUtils:
     @classmethod
     def load_planstep(cls, task_id: str, plan_step_id: str) -> PlanStep:
         task = cls.load_task(task_id)
+        plan_step = task.get_planstep_by_id(plan_step_id)
         plan_step = next((step for step in task.plan if step.id == plan_step_id), None)
         
         if plan_step is None:

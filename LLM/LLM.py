@@ -5,6 +5,7 @@ import requests
 from typing import Generator, Optional, Union
 from LLM.LLMCache import LLMCache
 from LLM.LLMProvider import LLMProvider
+from Common.color_printer import back_blue
 
 
 class LLM:
@@ -95,7 +96,7 @@ class LLM:
             case _:
                 raise ValueError(f"Unknown LLM provider: {self.provider}")
 
-            # 2. Use a wrapper function to intercept chunks for the cache
+        # 2. Use a wrapper function to intercept chunks for the cache
         full_response = []
         for chunk in gen:
             full_response.append(chunk)
@@ -104,6 +105,26 @@ class LLM:
         # Once the consumer consumes the entire generator, save to cache
         if self.cache:
             self.cache.set(prompt, "".join(full_response))
+
+    def stream_print_and_wait(self, prompt: str) -> str:
+        buffer = ""
+        print_buffer = ""
+        last_print_time = time.time()
+        flush_interval = 0.04
+        for token in self.stream(prompt):
+            buffer += token
+            print_buffer += token
+            
+            current_time = time.time()
+            # Only print if enough time has passed
+            if current_time - last_print_time >= flush_interval:
+                back_blue(print_buffer, end="", flush=True)
+                print_buffer = ""  # Clear the print buffer
+                last_print_time = current_time
+        if print_buffer:
+            back_blue(print_buffer, end="", flush=True)
+        print("")
+        return buffer
 
     # ============================================================
     # Ollama (persistent local models)

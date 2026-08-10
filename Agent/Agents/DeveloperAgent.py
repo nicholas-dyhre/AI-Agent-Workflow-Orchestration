@@ -17,8 +17,8 @@ class DeveloperAgent(BaseAgent):
         super().__init__(llm, tool_selector, skill_selector)
         self.name = AgentName.DEVELOPER.value
         self.agentName = AgentName.DEVELOPER
-        self.allowed_tags.extend([ToolTag.FILESYSTEM, ToolTag.DEVELOPMENT, ToolTag.GIT, ToolTag.TESTING, ToolTag.GENERATION])
-        self.allowed_capabilities.extend([
+        self.toolRepository.allowed_tags.extend([ToolTag.FILESYSTEM, ToolTag.DEVELOPMENT, ToolTag.GIT, ToolTag.TESTING, ToolTag.GENERATION])
+        self.toolRepository.allowed_capabilities.extend([
             ToolCapability.WRITE_FILES, 
             ToolCapability.RUN_TESTS, 
             ToolCapability.CREATE_PULL_REQUEST, 
@@ -29,17 +29,18 @@ class DeveloperAgent(BaseAgent):
             ToolCapability.PUSH_CHANGES,
             ToolCapability.GIT_GET_REPO_INFO,
             ToolCapability.CODE,
+            ToolCapability.MODIFY_PLAN_STEP
         ])
-        self.denied_capabilities.extend([
+        self.toolRepository.denied_capabilities.extend([
             ToolCapability.CREATE_TASK, 
             ToolCapability.CREATE_PLAN_STEP, 
             ToolCapability.READ_TASKS, 
             ToolCapability.READ_PLAN_STEPS
             ])
-        self.goal_checker_tools.extend([
-            GetDiffTool,
-            RunProjectTool
-        ])
+        # self.toolRepository.goal_checker_tools.extend([
+        #     GetDiffTool,
+        #     RunProjectTool
+        # ])
         self.diff: str = ""
 
     def run(self, task: Task) -> Task:
@@ -84,7 +85,7 @@ class DeveloperAgent(BaseAgent):
 
             isEmpty, status = GitUtils.get_repo_status()
             if isEmpty:
-                validation_errors = status + "\n"
+                validation_errors = f"Git Status: {status}\n"
 
             diff = GitUtils.get_diff()
             if not diff:
@@ -103,7 +104,7 @@ class DeveloperAgent(BaseAgent):
             for run in runs:
                 if not run.execution_output:
                     validation_errors += "No execution output. The task can only be resolved with code changes"
-                elif not run.execution_output.is_success():
+                elif run.execution_output and not run.execution_output.is_success():
                     validation_errors +=  f"The project execution failed. StdErr:{run.execution_output.stderr}"
                 
             tests = CodeUtils.run_tests(None)

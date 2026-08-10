@@ -154,6 +154,11 @@ class Task(BaseModel):
 
         print(prompt)
         return prompt
+    
+    def get_planstep_by_id(self, id: str) -> PlanStep | None:
+        plan_step = next((step for step in self.plan if step.id == id), None)
+        return plan_step
+
 
     def __to_developer_prompt(self, indentation: str) -> str:
         nextindentation = indentation + indentation_step

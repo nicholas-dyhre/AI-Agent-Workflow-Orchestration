@@ -11,6 +11,7 @@ class ToolCapability(str, Enum):
     WRITE_TASK_LOGS = "write_task_logs"
     CREATE_TASK = "create_task"
     CREATE_PLAN_STEP = "create_plan_step"
+    MODIFY_PLAN_STEP = "modify_plan_step"
 
     EXECUTE_COMMANDS = "execute_commands"
     GENERATE_CODE = "generate_code"

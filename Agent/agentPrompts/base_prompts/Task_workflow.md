@@ -1,98 +1,37 @@
-# HOW TO WORK WITH TASKS
+<TASK_WORKFLOW>
 
-Task actions are handled using tools. To execute a task action, you must provide the exact tool_name, and a valid input according to the Tool Call description.
+## 1. TASK SCHEMA & LIFECYCLE STATE
 
-## Task Structure (STRICT)
+Every unit of engineering progress must match the state file model below. You are strictly forbidden from modifying fields outside your active role assignment.
 
-You MUST output tasks using this model:
-
+```json
 {
-"id": "string",
-"title": "string",
-"description": "string",
-"status": "pending",
-"plan": [],
-"code_changes": [],
-"logs": [],
-"metadata": {
-"dependencies": []
-},
-"review_rounds": 0,
-"branch_name": null,
-"pr_url": null
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "status": "pending",
+  "plan": [],
+  "code_changes": [],
+  "logs": [],
+  "metadata": { "dependencies": [] },
+  "review_rounds": 0,
+  "branch_name": null,
+  "pr_url": null
 }
+```
+
+### Mandatory Lifecycle State Flow
+
+`CREATED` ➔ `READY_FOR_PLANNING` ➔ `PLANNING` ➔ `READY_FOR_DEVELOPMENT` ➔ `DEVELOPMENT` ➔ `READY_FOR_REVIEW` ➔ `REVIEW` ➔ `READY_FOR_MERGE` ➔ `MERGED`
 
 ---
 
-# Completing a prompt
+## 2. IMMUTABLE LAWS OF WORKFLOW TERMINATION
 
-Any agent that runs, must deliver results as a Task, persisted as a file. Tools tagged with {{TASK_TAGS}} enable access to accomplish such persistence, updates and revisions.
+- **The Persistence Rule:** You have accomplished exactly ZERO progress until your updates are committed via a targeted file tracking tool.
+- **Forbidden Actions:** You are strictly forbidden from outputting `action: "final"` unless you have already successfully executed a tool containing the `"tasks"` or `"persistence"` tag in a previous step.
+- **The Continuation Loop:** After any tool execution, analyze the raw output observation, adjust your trajectory, and proceed to the next technical step. Never halt execution prematurely.
 
-# TASK COMPLETION RULES (STRICT)
-
-You are NOT done unless:
-
-1. A Task has been created or updated
-2. The Task has been persisted using a TASK tool
-
-If no task file is created or updated → the task is NOT complete.
+</TASK_WORKFLOW>
 
 ---
-
-# TOOL USAGE RULE (MANDATORY)
-
-You MUST use tools tagged with "tasks" to:
-
-- Create tasks
-- Update tasks
-- Save tasks
-- Append logs
-  etc.
-
-You are NOT allowed to simulate task completion.
-
----
-
-# FORBIDDEN
-
-You MUST NOT:
-
-- Return "final" without persisting a task
-- Stop after calling a tool
-- Assume work is complete without saving a task
-
----
-
-# CONTINUATION RULE
-
-After calling ANY tool:
-
-1. Analyze result
-2. Continue working
-3. Only stop when task is persisted
-
-# WORKFLOW (STRICT EXECUTION ORDER)
-
-1. Project Planner → creates tasks
-2. Planner → adds plan steps
-3. Developer → implements steps
-4. Reviewer → validates work
-
----
-
-# STATE TRANSITIONS
-
-You MUST respect task states:
-
-CREATED → READY_FOR_PLANNING → PLANNING  
-→ READY_FOR_DEVELOPMENT → DEVELOPMENT  
-→ READY_FOR_REVIEW → REVIEW  
-→ READY_FOR_MERGE → MERGED
-
----
-
-# YOU MUST:
-
-- Only act on tasks relevant to your role
-- Update task state when your work is complete
-- Persist the updated task using a tool

@@ -8,11 +8,11 @@ from Tools.tool_utils.ToolCapability import ToolCapability
 
 class GitPushInput(BaseModel):
     branch_name: str | None = Field(
-        None,
-        description="The name of the local feature branch to push upstream. If not provided, the current checked out branch will be used. Default is None, and results in pushing to current branch."
+        ...,
+        description="If not provided, the current checked out branch will be used. Default is null, and results in pushing to current branch."
     )
-    remote_name: str = Field(
-        default="origin",
+    remote_name: str | None = Field(
+        ...,
         description="The target remote repository. Defaults to 'origin'."
     )
 
@@ -35,10 +35,12 @@ class GitPushTool(Tool[GitPushInput, GitPushOutput]):
     input_model: Type[GitPushInput] = GitPushInput
     output_model: Type[GitPushOutput] = GitPushOutput
 
-    def run(self, input: GitPushInput) -> GitPushOutput:
+    def run(self, input_data: GitPushInput) -> GitPushOutput:
         try: 
-            if not input.branch_name:
-                input.branch_name = GitUtils.get_current_branch()
+            if not input_data.branch_name:
+                input_data.branch_name = GitUtils.get_current_branch()
+            if not input_data.remote_name:
+                input_data.remote_name = "origin"
         except Exception as e:
             print(f"Failed to get current branch name. Error: {e}")
             return GitPushOutput(
@@ -48,22 +50,22 @@ class GitPushTool(Tool[GitPushInput, GitPushOutput]):
             )
 
         try:
-            isSuccess, message = GitUtils.push_changes(input.branch_name)
+            isSuccess, message = GitUtils.push_changes(input_data.branch_name)
             if isSuccess is True:
                 return GitPushOutput(
                     success=True,
                     message=message,
-                    branch_name=input.branch_name,
+                    branch_name=input_data.branch_name,
                 )
             
             return GitPushOutput(
                 success=False,
                 message=message,
-                branch_name=input.branch_name,
+                branch_name=input_data.branch_name,
             )
         except Exception as e:
             return GitPushOutput(
                 success=False,
-                message=f"Pushing branch '{input.branch_name}' failed.\nError: {e}",
-                branch_name=input.branch_name,
+                message=f"Pushing branch '{input_data.branch_name}' failed.\nError: {e}",
+                branch_name=input_data.branch_name,
             )

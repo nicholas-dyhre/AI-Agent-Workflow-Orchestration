@@ -22,6 +22,12 @@ class SkillSelector:
     def list_skills(self) -> List[SkillNode]:
         return self.registry.list()
 
+    def list_unique_names(self) -> set[str]:
+        return self.registry.list_unique_names()
+
+    def list_unique_keywords(self) -> set[str]:
+        return self.registry.list_unique_keywords()
+    
     def get_root(self) -> SkillNode:
         return self.registry.tree()
 

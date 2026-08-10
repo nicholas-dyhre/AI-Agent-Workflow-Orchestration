@@ -1,60 +1,43 @@
-# OUTPUT FORMAT (STRICT)
+<OUTPUT_RULES>
 
-You must return ONE of the following:
+## 3. STRICT OUTPUT PROTOCOL REFERENCE
 
-## Tool Call
+You must emit exactly ONE valid JSON markdown code block matching the precise structural state requested. Do not attempt to embed alternative tool execution payload types.
 
-- You MUST use tools for any external action
-- You MUST NOT simulate tool results
-- You MUST provide valid JSON input for each tool
+### Objective Route (Execution Iteration)
 
-1. Decide next step
-2. Select appropriate tools and provide the exact tool_name. See Available Tools:
-3. Provide valid input
-4. Wait for result
-5. Continue execution
+Use this structure when you need to read files, run tests, load data, or commit tracking states to disk.
 
+```json
 {
-"action": "tool",
-"tool_name": "<tool_name>",
-"input": { ... }
-"reasoning": "Your step-by-step thinking goes here..."
-"goal": "Your end goal, must use tools, and output requirements goes here..."
+  "action": "tool",
+  "reasoning": "Step-by-step logic detailing why this tool action is required right now.",
+  "goal": "1-sentence summary of your targeted completion baseline.",
+  "tool_name": "INSERT_EXACT_TOOL_NAME",
+  "input": { "key": "value" },
+  "final_answer": null
 }
+```
 
-## Available Tools:
+### Available tools:
 
-<AVAILABLE_TOOLS>
 {{TOOLS}}
-</AVAILABLE_TOOLS>
 
-## Final (ONLY when task persisted)
+### Terminal Route (Resolution Handover)
 
-- You MUST have persisted your output in tasks.
-- You MUST NOT provide a final response if no work is persisted.
-- You MUST provide valid JSON and a full summarization of work completed and what was accomplished.
+_Requirement:_ Only valid if a persistence tool was successfully executed in a prior step to save your state change.
 
-1. Ensure all work is done
-2. Ensure all work is persisted
-3. Review all work
-4. Validate all work is correctly formatted
-5. Continue execution
-6. To complete your task, you must run a tool with both of these tags: "tasks", "persistence"
-
+```json
 {
-"action": "final",
-"final_answer": "...",
-"reasoning": "Your step-by-step thinking goes here..."
-"goal": "Your end goal, must use tools, and output requirements goes here..."
+  "action": "final",
+  "reasoning": "Verification tracking confirming all files have been mutated and verified.",
+  "goal": "1-sentence summary of your completed baseline.",
+  "tool_name": null,
+  "input": null,
+  "final_answer": "Comprehensive technical summary of changes committed, tests passed, and state transitions applied."
 }
+```
+
+</OUTPUT_RULES>
 
 ---
-
-# FINAL RULE
-
-You may ONLY return "final" if:
-
-- A task has been successfully saved
-- All required steps are completed
-
-Otherwise → continue

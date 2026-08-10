@@ -43,18 +43,18 @@ class GetTaskTool(Tool[GetTaskInput, GetTaskOutput]):
     input_model: Type[GetTaskInput] = GetTaskInput
     output_model: Type[GetTaskOutput] = GetTaskOutput
 
-    def run(self, input: GetTaskInput) -> GetTaskOutput:
+    def run(self, input_data: GetTaskInput) -> GetTaskOutput:
         try:
-            task = TaskFileUtils.load_task(input.task_id)
+            task = TaskFileUtils.load_task(input_data.task_id)
 
             return GetTaskOutput(
                 success=True,
                 task=task,
-                message=f"Task '{input.task_id}' successfully loaded."
+                message=f"Task '{input_data.task_id}' successfully loaded."
             )
         except Exception as e:
             return GetTaskOutput(
                 success=False,
                 task=None,
-                message=f"Failed to load task '{input.task_id}': {e}"
+                message=f"Failed to load task '{input_data.task_id}': {e}"
             )

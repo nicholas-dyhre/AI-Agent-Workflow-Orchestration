@@ -54,13 +54,13 @@ class CreateTasksTool(Tool[CreateTasksInput, CreateTasksOutput]):
     input_model: Type[CreateTasksInput] = CreateTasksInput
     output_model: Type[CreateTasksOutput] = CreateTasksOutput
 
-    def run(self, input: CreateTasksInput) -> CreateTasksOutput:
+    def run(self, input_data: CreateTasksInput) -> CreateTasksOutput:
         created_records = []
         tasks_data: list[dict[str, Any]] = []
         task_ids: list[str] = []
 
         try:
-            for title, description in zip(input.titles, input.descriptions):
+            for title, description in zip(input_data.titles, input_data.descriptions):
                 task_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, title.strip()))
                 
                 task_data = {

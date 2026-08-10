@@ -43,10 +43,10 @@ class CreatePlanStepsTool(Tool[CreatePlanStepsInput, CreatePlanStepsOutput]):
     input_model: Type[CreatePlanStepsInput] = CreatePlanStepsInput
     output_model: Type[CreatePlanStepsOutput] = CreatePlanStepsOutput
 
-    def run(self, input: CreatePlanStepsInput) -> CreatePlanStepsOutput:
+    def run(self, input_data: CreatePlanStepsInput) -> CreatePlanStepsOutput:
         plan_steps_data = []
 
-        for description in input.descriptions:
+        for description in input_data.descriptions:
             task_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, description.strip()))
             
             plan_step_data = {
@@ -59,7 +59,7 @@ class CreatePlanStepsTool(Tool[CreatePlanStepsInput, CreatePlanStepsOutput]):
         updates = {"plan": plan_steps_data}
             
         try:
-            updated_task = TaskFileUtils.patch_task(input.task_id, updates)
+            updated_task = TaskFileUtils.patch_task(input_data.task_id, updates)
         except Exception as e:
             return CreatePlanStepsOutput(
                 success=False,
@@ -79,5 +79,5 @@ class CreatePlanStepsTool(Tool[CreatePlanStepsInput, CreatePlanStepsOutput]):
             success=True,
             created_plansteps=plan_steps_data,
             created_count=len(plan_steps_data),
-            message=f"Successfully created and persisted {len(plan_steps_data)} new task steps for task_id: {input.task_id}."
+            message=f"Successfully created and persisted {len(plan_steps_data)} new task steps for task_id: {input_data.task_id}."
         )

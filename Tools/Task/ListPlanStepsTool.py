@@ -48,21 +48,21 @@ class ListPlanStepsTool(Tool[ListPlanStepsInput, ListPlanStepsOutput]):
     input_model: Type[ListPlanStepsInput] = ListPlanStepsInput
     output_model: Type[ListPlanStepsOutput] = ListPlanStepsOutput
 
-    def run(self, input: ListPlanStepsInput) -> ListPlanStepsOutput:
+    def run(self, input_data: ListPlanStepsInput) -> ListPlanStepsOutput:
 
         try:
-            task: Task = TaskFileUtils.load_task(input.task_id)
+            task: Task = TaskFileUtils.load_task(input_data.task_id)
             plan_steps = task.plan
             return ListPlanStepsOutput(
                 success=True,
                 planSteps=plan_steps,
                 task_count=len(plan_steps),
-                message=f"Plan steps successfully loaded for task with id {input.task_id}."
+                message=f"Plan steps successfully loaded for task with id {input_data.task_id}."
             )
         except Exception as e:
             return ListPlanStepsOutput(
                 success=False,
                 planSteps=[],
                 task_count=0,
-                message=f"Failed to load task with id {input.task_id}: {str(e)}"
+                message=f"Failed to load task with id {input_data.task_id}: {str(e)}"
             )

@@ -8,10 +8,10 @@ from LLM.LLMProvider import LLMProvider
 from Orchestration.Orchestrator import Orchestrator
 from Tasks.Task import Task
 from Tasks.TaskState import State
-from Agent.DeveloperAgent import DeveloperAgent
-from Agent.PlannerAgent import PlannerAgent
-from Agent.ProjectPlannerAgent import ProjectPlannerAgent
-from Agent.ReviewerAgent import ReviewerAgent
+from Agent.Agents.DeveloperAgent import DeveloperAgent
+from Agent.Agents.PlannerAgent import PlannerAgent
+from Agent.Agents.ProjectPlannerAgent import ProjectPlannerAgent
+from Agent.Agents.ReviewerAgent import ReviewerAgent
 from Bootstrap.SetupHelper import SetupHelper
 from Tools.Git.GitUtils import GitUtils
 

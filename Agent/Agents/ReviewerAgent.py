@@ -16,15 +16,15 @@ class ReviewerAgent(BaseAgent):
         self.name = AgentName.REVIEWER.value
         self.agentName = AgentName.REVIEWER
         # Permissions to allow reading and mutating task structures
-        self.allowed_tags.extend([ToolTag.PERSISTENCE, ToolTag.QUERY, ToolTag.LOGGING, ToolTag.GIT, ToolTag.TESTING, ToolTag.PERSISTENCE, ToolTag.PERSISTENCE])
-        self.allowed_capabilities.extend([
+        self.toolRepository.allowed_tags.extend([ToolTag.PERSISTENCE, ToolTag.QUERY, ToolTag.LOGGING, ToolTag.GIT, ToolTag.TESTING, ToolTag.PERSISTENCE, ToolTag.PERSISTENCE])
+        self.toolRepository.allowed_capabilities.extend([
             ToolCapability.MODIFY_TASKS, 
             ToolCapability.SAVE_TASKS, 
             ToolCapability.WRITE_TASK_LOGS, 
             ToolCapability.RUN_TESTS, 
             ToolCapability.GET_CODE_CHANGES,
         ])
-        self.denied_capabilities.extend([
+        self.toolRepository.denied_capabilities.extend([
             ToolCapability.CREATE_TASK, 
             ToolCapability.GIT, 
             ToolCapability.CODE,
@@ -37,11 +37,12 @@ class ReviewerAgent(BaseAgent):
             ToolCapability.GENERATE_CODE,
             ToolCapability.READ_PLAN_STEPS,
             ToolCapability.READ_TASKS,
+            ToolCapability.MODIFY_PLAN_STEP
             ])
-        self.goal_checker_tools.extend([
-            GetDiffTool,
-            RunProjectTool
-        ])
+        # self.goal_checker_tools.extend([
+        #     GetDiffTool,
+        #     RunProjectTool
+        # ])
 
     def run(self, task: Task):
         for plan_step in task.plan:

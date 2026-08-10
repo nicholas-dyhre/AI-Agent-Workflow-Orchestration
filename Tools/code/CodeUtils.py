@@ -48,14 +48,14 @@ class CodeUtils:
         return base
 
     @classmethod
-    def read_file(cls, sub_path: str, start_line: Optional[int] = None, end_line: Optional[int] = None) -> str:
+    def read_file(cls, sub_path: str, start_line: Optional[int] = None, end_line: Optional[int] = None) -> tuple[bool, str]:
         """
         Reads a file. Supports line pagination to protect agent context windows.
         Line numbers are 1-indexed (inclusive).
         """
         path = cls._safe_resolve(sub_path)
         if not path.is_file():
-            return f"Error: File not found at '{sub_path}'"
+            return False, f"File not found at '{sub_path}'"
 
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
@@ -67,22 +67,46 @@ class CodeUtils:
                 sliced_lines = lines[start:end]
                 
                 content = "\n".join(f"{idx + start + 1}: {line}" for idx, line in enumerate(sliced_lines))
-                return f"[Showing lines {start + 1} to {end} of {total_lines} from {sub_path}]\n{content}"
+                return True, f"[Showing lines {start + 1} to {end} of {total_lines} from {sub_path}]\n{content}"
             
-            return path.read_text(encoding="utf-8")
+            return True, path.read_text(encoding="utf-8")
         except Exception as e:
-            return f"Error reading file '{sub_path}': {str(e)}"
+            return False, f"Error reading file '{sub_path}': {str(e)}"
 
     @classmethod
     def write_file(cls, sub_path: str, content: str) -> tuple[bool, str]:
         """Overwrites or creates a file with complete content."""
         path = cls._safe_resolve(sub_path)
+        if not path.suffix.lower():
+            return (False, f"Sub_path ('{sub_path}') is missing file extension.")
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
+
+            # if not path.is_file():
+            #     return (False, f"Error writing because '{sub_path}' is not a file")
+
             path.write_text(content, encoding="utf-8")
-            return (True, f"Success: Successfully wrote {len(content.splitlines())} lines to '{sub_path}'.")
+            return (True, f"Wrote {len(content.splitlines())} lines to '{sub_path}'.")
         except Exception as e:
             return (False, f"Error writing to file '{sub_path}': {str(e)}")
+
+    @classmethod
+    def run_process(cls, command: list[str], sub_path: str | None = None, timeout: int = 30) -> tuple[int, str, str]:
+        """Run a console command"""
+        try:
+            path = cls._safe_resolve(sub_path)
+            result = subprocess.run(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=30,
+                cwd=str(path)
+            )
+            return (result.returncode, result.stdout, result.stderr)
+
+        except Exception as e:
+            return (1, "", f"{str(e)}")
 
     @classmethod
     def create_directory(cls, sub_path: str) -> tuple[bool, str]:
@@ -134,9 +158,7 @@ class CodeUtils:
         patterns = [".git", "__pycache__", "node_modules", ".venv", "env", "*.pyc"]
         
         try:
-            base_path = cls._get_configured_path()
-            gitignore_path = base_path / ".gitignore"
-            
+            gitignore_path = cls._safe_resolve(".gitignore")            
             if gitignore_path.is_file():
                 for line in gitignore_path.read_text(encoding="utf-8").splitlines():
                     line = line.strip()
@@ -148,7 +170,7 @@ class CodeUtils:
         return list(set(patterns))
 
     @classmethod
-    def list_files(cls, sub_path: str = ".", max_depth: int = 3, folders_to_skip: list[str] = []) -> tuple[bool, str]:
+    def list_files(cls, sub_path: str | None, max_depth: int = 3, folders_to_skip: list[str] = []) -> tuple[bool, str]:
         """
         Lists files in a tree-like structure. 
         Dynamically filters out clutter based on the repository's .gitignore configurations.
@@ -225,7 +247,7 @@ class CodeUtils:
         except subprocess.TimeoutExpired:
             raise Exception("Failed to run command with the timeout")
         except Exception as e:
-            raise Exception("Failed to run tests: {str(e)}")
+            raise Exception(f"Failed to run tests: {str(e)}")
 
     @classmethod
     def run_build(cls, relative_dir: str | Path | None) -> list[ProjectRunOutput]:
@@ -237,7 +259,7 @@ class CodeUtils:
         except subprocess.TimeoutExpired:
             raise Exception("Failed to run command with the timeout")
         except Exception as e:
-            raise Exception("Failed to run tests: {str(e)}")
+            raise Exception(f"Failed to run buld: {str(e)}")
 
     @classmethod
     def run_project(cls, relative_dir: str | Path | None) -> list[ProjectRunOutput]:
@@ -249,7 +271,7 @@ class CodeUtils:
         except subprocess.TimeoutExpired:
             raise Exception("Failed to run command with the timeout")
         except Exception as e:
-            raise Exception("Failed to run tests: {str(e)}")
+            raise Exception(f"Failed to run project: {str(e)}")
 
     @classmethod
     def run_dev(cls, relative_dir: str | Path | None) -> list[ProjectRunOutput]:
@@ -261,4 +283,4 @@ class CodeUtils:
         except subprocess.TimeoutExpired:
             raise Exception("Failed to run command with the timeout")
         except Exception as e:
-            raise Exception("Failed to run tests: {str(e)}")
+            raise Exception(f"Failed to run dev project: {str(e)}")

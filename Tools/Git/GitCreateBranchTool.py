@@ -33,19 +33,19 @@ class GitCreateBranchTool(Tool[GitCreateBranchInput, GitCreateBranchOutput]):
     output_model: Type[GitCreateBranchOutput] = GitCreateBranchOutput
     path: str = "Tools/Git/CreateBranchTool.py"
 
-    def run(self, input: GitCreateBranchInput) -> GitCreateBranchOutput:
+    def run(self, input_data: GitCreateBranchInput) -> GitCreateBranchOutput:
         try:
-            GitUtils.create_branch(input.branch_name)
+            GitUtils.create_branch(input_data.branch_name)
             return GitCreateBranchOutput(
                 success=True,
-                message=f"Branch '{input.branch_name}' created successfully.",
-                branch_name=input.branch_name,
+                message=f"Branch '{input_data.branch_name}' created successfully.",
+                branch_name=input_data.branch_name,
                 stdout=""
             )
         except subprocess.CalledProcessError as e:
             return GitCreateBranchOutput(
                 success=False,
-                message=f"Branch '{input.branch_name}' could not be created. \n Error: {e.stderr.strip()}",
-                branch_name=input.branch_name,
+                message=f"Branch '{input_data.branch_name}' could not be created. \n Error: {e.stderr.strip()}",
+                branch_name=input_data.branch_name,
                 stdout=e.stdout.strip()
             )

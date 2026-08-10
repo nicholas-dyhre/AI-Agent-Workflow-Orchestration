@@ -31,9 +31,9 @@ class GitCommitTool(Tool[GitCommitInput, GitCommitOutput]):
     input_model: Type[GitCommitInput] = GitCommitInput
     output_model: Type[GitCommitOutput] = GitCommitOutput
 
-    def run(self, input: GitCommitInput) -> GitCommitOutput:
+    def run(self, input_data: GitCommitInput) -> GitCommitOutput:
         try:
-            message = GitUtils.commit_changes(input.commit_message)
+            message = GitUtils.commit_changes(input_data.commit_message)
         except Exception as e:
             return GitCommitOutput(
                 success=False,

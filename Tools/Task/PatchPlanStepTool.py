@@ -1,28 +1,30 @@
-from typing import Any, Dict, Optional, Type
-
-from pydantic import BaseModel, Field, PrivateAttr
-
-from Tasks.Task import Task
+from typing import Any, Dict, Type
+from pydantic import BaseModel, Field
+from Tasks.Task import PlanStep
 from Tools.Tool import Tool, ToolOutput
-from Tools.models.ToolContextKey import ToolContextKey
 from Tools.tool_utils.ToolTag import ToolTag
 from Tools.tool_utils.ToolCapability import ToolCapability
 from Tools.Task.TaskFileUtils import TaskFileUtils
 
 
-class PatchTaskInput(BaseModel):
+class PatchPlanStepInput(BaseModel):
     task_id: str = Field(
         ...,
         description="Writing the exact string '{{TASK_ID}}' will ensure infrastructure inserts correct taskid."
     )
+    plan_step_id: str = Field(
+        ...,
+        description="Writing the exact id will ensure infrastructure finds the plan step"
+
+    )
     updates: Dict[str, Any] = Field(
         ...,
-        description="A key-value dictionary containing the fields to update (e.g., {'status': 'completed'})."
+        description="A key-value dictionary containing the fields to update (e.g., {'description': 'new description'})."
     )
 
 
-class PatchTaskOutput(ToolOutput):
-    task: Task | None
+class PatchPlanStepOutput(ToolOutput):
+    task: PlanStep | None
     updated_fields: list[str]
 
     def to_string(self) -> str:
@@ -40,37 +42,38 @@ class PatchTaskOutput(ToolOutput):
         return result
 
 
-class PatchTaskTool(Tool[PatchTaskInput, PatchTaskOutput]):
-    name: str = "PatchTaskTool"
-    description: str = "Applies partial structural modifications (patches) to an existing stored task without overwriting unchanged fields."
+class PatchPlanStepTool(Tool[PatchPlanStepInput, PatchPlanStepOutput]):
+    name: str = "PatchPlanStepTool"
+    description: str = "Applies partial structural modifications (patches) to an existing stored planstep without overwriting unchanged fields."
     tags: list[ToolTag] = [ToolTag.TASKS, ToolTag.PERSISTENCE]
     capabilities: list[ToolCapability] = [ToolCapability.MODIFY_TASKS]
-    path: str = "Tools/PatchTaskTool.py"
-    input_model: Type[PatchTaskInput] = PatchTaskInput
-    output_model: Type[PatchTaskOutput] = PatchTaskOutput
+    path: str = "Tools/PatchPlanStepTool.py"
+    input_model: Type[PatchPlanStepInput] = PatchPlanStepInput
+    output_model: Type[PatchPlanStepOutput] = PatchPlanStepOutput
 
-    def run(self, input_data: PatchTaskInput) -> PatchTaskOutput:
+    def run(self, input_data: PatchPlanStepInput) -> PatchPlanStepOutput:
+        
         try:
-            updated_task = TaskFileUtils.patch_task(input_data.task_id, input_data.updates)
+            updated_planstep = TaskFileUtils.patch_planstep_in_task_file(input_data.task_id, input_data.plan_step_id, input_data.updates)
         except Exception as e:
-            return PatchTaskOutput(
+            return PatchPlanStepOutput(
                 success = False,
                 task=None,
                 updated_fields=list(input_data.updates.keys()),
                 message=f"Failed to apply patch due to a data processing or schema error: {e} \n"
             )
 
-        if isinstance(updated_task, str):
-            return PatchTaskOutput(
+        if isinstance(updated_planstep, str):
+            return PatchPlanStepOutput(
                 success = False,
                 task=None,
                 updated_fields=list(input_data.updates.keys()),
-                message=f"Failed to apply patch. Error: {updated_task} \n"
+                message=f"Failed to apply patch. Error: {updated_planstep} \n"
             )
 
-        return PatchTaskOutput(
+        return PatchPlanStepOutput(
             success = True,
-            task=updated_task,
+            task=updated_planstep,
             updated_fields=list(input_data.updates.keys()),
             message="Task successfully patched and persisted. \n"
         )

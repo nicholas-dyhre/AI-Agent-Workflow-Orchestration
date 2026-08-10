@@ -23,7 +23,7 @@ class GitGetLatestCommitTool(Tool[GitGetLatestCommitInput, GitGetLatestCommitOut
     input_model: Type[GitGetLatestCommitInput] = GitGetLatestCommitInput
     output_model: Type[GitGetLatestCommitOutput] = GitGetLatestCommitOutput
 
-    def run(self, input: GitGetLatestCommitInput) -> GitGetLatestCommitOutput:
+    def run(self, input_data: GitGetLatestCommitInput) -> GitGetLatestCommitOutput:
         try:
             summary = GitUtils.get_latest_commit()
             return GitGetLatestCommitOutput(latest_commit_summary=summary, success=True, message="History ledger endpoint parsed.")

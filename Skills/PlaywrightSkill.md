@@ -83,14 +83,14 @@ Use Playwright E2E tests for:
 
 Routing logic is split into focused modules:
 
-- Playwright, enforcement, rules, constraints, governance, testing policy → `playwright-enforcement`
-- Debugging, failure analysis, logs, trace inspection, root cause → `debugging`
+- Playwright, enforcement, rules, constraints, testing → `playwright-enforcement`
+- Debugging, trace inspection, root cause → `debugging`
 - Fixtures, test setup, teardown, dependency injection, test context → `fixtures`
-- Routing, navigation rules, URL handling, flow control, redirection logic → `routing`
+- Routing, URL handling, flow control, redirection → `routing`
 
-- accessibility, a11y, ARIA, screen readers, keyboard navigation → `accessibility`
-- advanced features, experimental APIs, tracing, extensions, capabilities → `advanced-features`
-- assertions, waits, timing, synchronization, expectations, conditions → `assertions-waits`
+- accessibility, screen readers, keyboard navigation → `accessibility`
+- experimental APIs, tracing, extensions, capabilities → `advanced-features`
+- assertions, waits, synchronization, expectations → `assertions-waits`
 - authentication, login, sessions, cookies, tokens, identity flow → `authentication`
 - browser APIs, window, DOM APIs, execution context, JS bridge → `browser-apis`
 - CI/CD, pipelines, automation, GitHub Actions, deployment testing → `ci-cd`

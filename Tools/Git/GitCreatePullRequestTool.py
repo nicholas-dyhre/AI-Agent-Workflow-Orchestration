@@ -7,8 +7,8 @@ from Tools.tool_utils.ToolCapability import ToolCapability
 
 
 class GitCreatePullRequestInput(BaseModel):
-    is_draft: bool = Field(
-        False,
+    is_draft: bool | None = Field(
+        ...,
         description="Indicates whether the pull request should be created as a draft. Defaults to False"
     )
     pr_title: str = Field(
@@ -38,12 +38,12 @@ class GitCreatePullRequestTool(Tool[GitCreatePullRequestInput, GitCreatePullRequ
     input_model: Type[GitCreatePullRequestInput] = GitCreatePullRequestInput
     output_model: Type[GitCreatePullRequestOutput] = GitCreatePullRequestOutput
 
-    def run(self, input: GitCreatePullRequestInput) -> GitCreatePullRequestOutput:
+    def run(self, input_data: GitCreatePullRequestInput) -> GitCreatePullRequestOutput:
         try:
             isSuccess, message = GitUtils.create_pull_request(
-                title=input.pr_title,
-                body=input.pr_body,
-                draft=input.is_draft
+                title=input_data.pr_title,
+                body=input_data.pr_body,
+                draft=input_data.is_draft if input_data.is_draft else False
             )
             if isSuccess is True:
                 return GitCreatePullRequestOutput(

@@ -48,30 +48,30 @@ class AppendTaskLogTool(Tool[AppendTaskLogToolInput, AppendTaskLogToolOutput]):
     input_model: Type[AppendTaskLogToolInput] = AppendTaskLogToolInput
     output_model: Type[AppendTaskLogToolOutput] = AppendTaskLogToolOutput
 
-    def run(self, input: AppendTaskLogToolInput) -> AppendTaskLogToolOutput:
+    def run(self, input_data: AppendTaskLogToolInput) -> AppendTaskLogToolOutput:
         try:
-            message, success = TaskFileUtils.append_log_to_task(input.task_id, AgentLog(
-                agent=AgentName(input.agent_name),
-                input=input.log_entry_input,
-                output=input.log_entry_output,
+            message, success = TaskFileUtils.append_log_to_task(input_data.task_id, AgentLog(
+                agent=AgentName(input_data.agent_name),
+                input=input_data.log_entry_input,
+                output=input_data.log_entry_output,
                 timestamp=datetime.datetime.now().isoformat()
             ))
         except Exception as e:
             return AppendTaskLogToolOutput(
                 success=False,
                 message=f"Could not append Task log. \n Error: {str(e)}",
-                task_id=input.task_id,
+                task_id=input_data.task_id,
             )
 
         if success is False:
             return AppendTaskLogToolOutput(
                 success=False,
                 message = f"Could not append Task log. \n Error: {message}",
-                task_id = input.task_id,
+                task_id = input_data.task_id,
             )
         else:
             return AppendTaskLogToolOutput(
                 success=True,
                 message = "Log added successfully",
-                task_id = input.task_id,
+                task_id = input_data.task_id,
             )
