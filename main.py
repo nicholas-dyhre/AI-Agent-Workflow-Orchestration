@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 from typing import List
@@ -16,24 +17,38 @@ from Bootstrap.SetupHelper import SetupHelper
 from Tools.Git.GitUtils import GitUtils
 
 def main(args=sys.argv[1:]):
-    if len(args) < 1:
-        print("Repostory path provided. Using default path: ./")
-        cwd = os.getcwd()
-        repo_path = os.path.join(cwd, "./")
-        task_path = f"{cwd}/Tasks/"
-        print(f"Repository path: {repo_path}")
-        print(f"Task path: {task_path}")
-    else:
-        repo_path = args[0]
-        task_path = f"{repo_path}/Tasks/"
-        print(f"Repository path: {repo_path}")
-        print(f"Task path: {task_path}")
+    parser = argparse.ArgumentParser(description="Process project location and prompts.")
+    
+    parser.add_argument(
+        '--project_location', 
+        type=str, 
+        default=os.getcwd(), 
+        help="Path to the repository (default: current working directory)"
+    )
+    parser.add_argument(
+        '--prompt', 
+        type=str, 
+        default=None, 
+        help="The prompt string to process"
+    )
 
-    if len(args) < 2:
+    args = parser.parse_args()
+
+    repo_path = os.path.abspath(args.project_location)
+    task_path = os.path.join(repo_path, "Tasks")
+    
+    if args.project_location == parser.get_default('--project_location'):
+        print("Repository path not explicitly provided. Using default path.")
+    
+    print(f"Repository path: {repo_path}")
+    print(f"Task path: {task_path}")
+
+    if args.prompt is None:
         print("No prompt provided. Exiting...")
         return
-    else:
-        prompt = args[1]
+    
+    prompt = args.prompt
+    # print(f"Prompt received: {prompt}")
 
     print("Starting AI Agent Orchestrator...")
 
@@ -77,7 +92,7 @@ def main(args=sys.argv[1:]):
 
     orchestrator = Orchestrator(agents=agents, task_repo=task_path, max_cycles=50)
 
-    # orchestrator.runProjectPlanner(prompt)
+    orchestrator.runProjectPlanner(prompt)
     orchestrator.run_all_ready_tasks(prompt)
 
     print("\n===== FINISHED =====")
