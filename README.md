@@ -16,17 +16,51 @@ This project is a proof of concept created to gain experience and insight into m
 
 ### Setup & Usage
 
-#### Installation
+#### 1. Installation
 
 Clone the repository, navigate to the project directory, and install the required dependencies:
 
 `pip install -r ./requirements.txt`
 
-#### Running the Orchestrator
+#### 2. Running the Orchestrator
 
 Execute the main script by providing your project location and an initial prompt:
 
 `python main.py --project_location /path/to/project --prompt "Hello world"`
+
+#### 3. Configuring and Changing Agents
+
+To change the LLM provider or model for specific agent roles, update the agent definitions inside main.py.First, instantiate a new LLM object with your desired configuration:
+
+```python
+my_LLM = LLM(
+    LLMProvider.OLLAMA | LLMProvider.OPENAI | LLMProvider.LOCAL,
+    "MODEL_NAME",
+    isStream=True,
+    endpoint="PROVIDER_URL",
+    cache=LLMCache(),
+)
+```
+
+Then, assign the new LLM instance to the desired agent role within the orchestration mapping:
+
+```python
+
+agents = {
+    AgentName.DEVELOPER: DeveloperAgent(
+        llm=my_LLM,
+        tool_selector=toolSelector,
+        skill_selector=skillSelector,
+    ),
+    AgentName.PROJECT_PLANNER: ProjectPlannerAgent(
+        llm=my_other_LLM,
+        tool_selector=toolSelector,
+        skill_selector=skillSelector,
+    ),
+}
+```
+
+> **NOTE:** While LLMProvider.OPENAI is listed as an option, API key authentication is not currently implemented.
 
 ---
 
