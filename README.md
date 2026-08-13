@@ -2,6 +2,8 @@
 
 This project is a proof of concept created to gain experience and insight into multi-agent collaboration, information parsing, automated workflows, tool execution, and skill discovery, and agent work cycles. **It is not intended for production use**. 
 
+The AI orchestrator itself is primarily made for local AI agents to challenge myself on using less sophisticated agents and limit context.
+
 ---
 
 ### AI Orchestrator
