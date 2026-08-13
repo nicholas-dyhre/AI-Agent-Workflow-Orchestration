@@ -1,16 +1,14 @@
+### Purpose
+
+This project is a proof of concept created to gain experience and insight into multi-agent collaboration, information parsing, automated workflows, tool execution, and skill discovery, and agent work cycles. **It is not intended for production use**. 
+
+---
+
 ### AI Orchestrator
 
 The AI Orchestrator is a flexible framework designed to coordinate the execution of AI skills and tools, with a primary focus on running local autonomous agents. It also features experimental support for remote agents. 
 
 Built using Python and Pydantic, the orchestrator provides a Command Line Interface (CLI) for user input. It is designed specifically for developers looking to build, test, and expand AI applications that interact with local development environments. 
-
----
-
-### Purpose
-
-The main purpose is to built full software solutions from start to finish. To accomplish this, more work is needed. Small features and programs are possible.
-
-This project is a proof of concept created to gain experience and insight into multi-agent collaboration, information parsing, automated workflows, tool execution, and skill discovery. **It is not intended for production use**, but serves as an extensible foundation for future AI orchestration research. 
 
 ---
 
